@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Consultá el I Ching con 3 monedas como herramienta de reflexión: hexagrama, líneas que mandan, hexagrama nuclear, preguntas, acción y diario con seguimiento.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20rx%3D%228%22%20fill%3D%22%23B3352B%22/%3E%3Ctext%20x%3D%2232%22%20y%3D%2245%22%20font-size%3D%2236%22%20text-anchor%3D%22middle%22%20fill%3D%22%23fff%22%20font-family%3D%22serif%22%3E%E6%98%93%3C/text%3E%3C/svg%3E">
+<title>Espejo I Ching</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=Manrope:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+TC:wght@600&display=swap">
+<style>
+/* Layout: dos paneles — consulta y tirada a la izquierda, lectura a la derecha; una columna en móvil. Sello rojo como único acento. */
+:root{
+  --bg:#EDF1EE; --surface:#F8FAF8; --ink:#14211D; --muted:#5A6B65; --line:#CBD6D1;
+  --seal:#B3352B; --seal-soft:#F3DEDA; --jade:#2F6B5A; --coin:#C9A85A; --coin-ink:#5B4718;
+  --f-display:"Spectral",Georgia,"Times New Roman",serif;
+  --f-body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --f-han:"Noto Serif TC","Songti TC","SimSun",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1513; --surface:#16201D; --ink:#E3EBE7; --muted:#93A59E; --line:#2A3833;
+  --seal:#E0574B; --seal-soft:#3A1E1B; --jade:#6FB39C; --coin:#B8954A; --coin-ink:#1E1607; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1513; --surface:#16201D; --ink:#E3EBE7; --muted:#93A59E; --line:#2A3833;
+  --seal:#E0574B; --seal-soft:#3A1E1B; --jade:#6FB39C; --coin:#B8954A; --coin-ink:#1E1607; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:18px}
+.brand{display:flex;align-items:center;gap:14px}
+.seal{width:52px;height:52px;border-radius:6px;background:var(--seal);color:#fff;display:grid;place-items:center;font-family:var(--f-han);font-size:26px;line-height:1;transform:rotate(-3deg);flex:none}
+h1{font-family:var(--f-display);font-weight:600;font-size:clamp(26px,4vw,36px);line-height:1.1;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:2px 0 0;font-size:14px}
+.tag{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:28px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;display:flex;flex-direction:column;gap:18px;min-width:0}
+
+label.lbl{display:block;font-weight:700;font-size:13px;margin-bottom:6px}
+textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+textarea{min-height:84px;resize:vertical}
+textarea:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--jade);outline-offset:2px}
+.hint{color:var(--muted);font-size:13px;margin:6px 0 0}
+
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+button{font:inherit;font-weight:700;cursor:pointer;border-radius:8px;padding:10px 16px;border:1px solid var(--ink);background:var(--ink);color:var(--bg)}
+button.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+button.seal-btn{background:var(--seal);border-color:var(--seal);color:#fff}
+button:disabled{opacity:.45;cursor:not-allowed}
+
+.toss{display:flex;flex-direction:column;gap:14px}
+.coins{display:flex;gap:14px;justify-content:center;min-height:64px;align-items:center}
+.coin{width:56px;height:56px;border-radius:50%;background:var(--coin);border:3px solid color-mix(in srgb,var(--coin) 60%,var(--coin-ink));position:relative;display:grid;place-items:center;transition:transform .5s}
+.coin::after{content:"";width:14px;height:14px;background:var(--surface);border:2px solid var(--coin-ink);position:absolute}
+.coin span{position:absolute;bottom:-20px;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.coin.tails{background:color-mix(in srgb,var(--coin) 55%,var(--surface))}
+.coin.flip{animation:flip .6s ease}
+@keyframes flip{0%{transform:rotateY(0) translateY(0)}50%{transform:rotateY(540deg) translateY(-14px)}100%{transform:rotateY(1080deg) translateY(0)}}
+@media (prefers-reduced-motion:reduce){.coin.flip{animation:none}}
+.progress{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-align:center;margin-top:10px}
+
+/* hexagram figure */
+.hex{display:flex;flex-direction:column-reverse;gap:9px;width:150px;flex:none}
+.hex.sm{width:84px;gap:6px}
+.ln{height:14px;display:flex;gap:16px;position:relative}
+.hex.sm .ln{height:8px;gap:10px}
+.ln i{flex:1;background:var(--ink);border-radius:2px}
+.ln.empty i{background:transparent;border:1px dashed var(--line)}
+.ln.mov i{background:var(--seal)}
+.ln.mov::after{content:attr(data-v);position:absolute;right:-26px;top:50%;transform:translateY(-50%);font-family:var(--f-mono);font-size:11px;color:var(--seal)}
+.hex.sm .ln.mov::after{display:none}
+.ln-row{display:flex;justify-content:center;padding:6px 0}
+
+.result-head{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.result-head .meta{min-width:0;flex:1}
+.num{font-family:var(--f-mono);font-size:13px;color:var(--seal);letter-spacing:.06em}
+.han{font-family:var(--f-han);font-size:44px;line-height:1;margin:4px 0}
+h2{font-family:var(--f-display);font-weight:600;font-size:clamp(22px,3vw,28px);line-height:1.15;margin:2px 0;text-wrap:balance}
+.pinyin{font-style:italic;font-family:var(--f-display);color:var(--muted)}
+.tri{font-size:14px;color:var(--muted);margin-top:6px}
+.tri b{color:var(--ink);font-weight:600}
+.gist{font-family:var(--f-display);font-size:19px;line-height:1.45;margin:0;max-width:62ch}
+h3{font-family:var(--f-mono);font-weight:500;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+ul.qs{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.act{border-left:3px solid var(--seal);padding:4px 0 4px 12px;font-weight:600}
+.moving{display:flex;flex-direction:column;gap:8px}
+.moving div{display:grid;grid-template-columns:72px minmax(0,1fr);gap:10px;font-size:14px}
+.moving div b{font-family:var(--f-mono);font-weight:500;font-size:12px;color:var(--seal);padding-top:2px}
+.to{display:flex;gap:18px;align-items:center;background:var(--bg);border-radius:8px;padding:14px;flex-wrap:wrap}
+.to .meta{min-width:0;flex:1}
+.to h4{font-family:var(--f-display);font-size:18px;margin:2px 0;font-weight:600}
+.to p{margin:0;font-size:14px;color:var(--muted)}
+.example-flag{align-self:flex-start;background:var(--seal-soft);color:var(--seal);font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.qline{font-size:14px;color:var(--muted);margin:0}
+.qline b{color:var(--ink)}
+
+.claude-box{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:12px}
+.reading{font-size:15px;line-height:1.65;max-width:68ch}
+.reading p{margin:0 0 10px}
+.reading ul{margin:0 0 10px;padding-left:18px}
+.reading strong{font-weight:700}
+.reading.thinking{color:var(--muted);font-style:italic}
+.note{font-size:13px;color:var(--muted);margin:0}
+
+.history{display:flex;flex-direction:column;gap:0}
+.history button{all:unset;cursor:pointer;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line)}
+.history button:focus-visible{outline:2px solid var(--jade)}
+.history .q{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.history .d{font-family:var(--f-mono);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.history .h{font-family:var(--f-mono);font-size:12px;color:var(--seal);font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);font-size:14px;margin:0}
+.btnlink{font-weight:700;border-radius:8px;padding:10px 16px;border:1px solid var(--seal);background:var(--seal);color:#fff;text-decoration:none;display:inline-block}
+.image-q p{font-family:var(--f-display);font-style:italic;font-size:17px;line-height:1.5;margin:0;max-width:62ch}
+.rule{background:var(--bg);border-radius:8px;padding:12px 14px}
+.rule p{margin:0;font-size:14px}
+.moving div{grid-template-columns:118px minmax(0,1fr)}
+.moving span em{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-top:3px}
+.moving .gov span{font-weight:600}
+.chip{display:inline-block;margin-left:6px;background:var(--seal);color:#fff;font-size:10px;padding:1px 6px;border-radius:3px;letter-spacing:.05em;text-transform:uppercase;vertical-align:1px}
+.to p.img-sm{font-style:italic;margin-top:6px}
+details.more summary{cursor:pointer;color:var(--muted);font-size:13px}
+details.more .moving{margin-top:10px}
+.followup{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:10px}
+.fu-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.fu-row>div{flex:1;min-width:200px}
+.export{border-top:1px solid var(--line);padding-top:14px}
+.history button{grid-template-columns:auto minmax(0,1fr) auto auto !important}
+.st{font-family:var(--f-mono);font-size:11px}
+.st.ok{color:var(--jade)}
+.st.due{color:var(--seal);border:1px solid var(--seal);border-radius:3px;padding:0 5px}
+.fu-banner{background:var(--seal-soft);color:var(--ink);padding:10px 12px;border-radius:6px;margin:0 0 8px;font-size:14px}
+footer{color:var(--muted);font-size:12.5px;max-width:70ch}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="seal" aria-hidden="true">易</div>
+      <div>
+        <h1>Espejo I Ching</h1>
+        <p class="sub">El Libro de los Cambios usado para pensar una decisión, no para predecir el futuro.</p>
+      </div>
+    </div>
+    <span class="tag">3 monedas · 64 hexagramas</span>
+  </header>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-consulta">
+      <div>
+        <h3 id="h-consulta">1 · La pregunta</h3>
+        <label class="lbl" for="q">¿Qué decisión o situación querés pensar?</label>
+        <textarea id="q" placeholder="Ej: ¿Lanzo el proyecto nuevo este mes o espero a tener el equipo armado?"></textarea>
+        <p class="hint">Formulala abierta: "¿cómo encaro…?" rinde más que "¿sí o no?".</p>
+      </div>
+      <div>
+        <label class="lbl" for="area">Ámbito</label>
+        <select id="area">
+          <option>Negocio</option><option>Trabajo</option><option>Vínculos</option><option>Salud y hábitos</option><option>Personal</option>
+        </select>
+      </div>
+
+      <div class="toss">
+        <h3>2 · La tirada</h3>
+        <div class="coins" id="coins" aria-live="polite"></div>
+        <div class="ln-row"><div class="hex" id="building" aria-label="Hexagrama en construcción"></div></div>
+        <p class="progress" id="progress">Seis tiradas, de abajo hacia arriba.</p>
+        <div class="btns">
+          <button id="tossBtn" class="seal-btn">Tirar monedas</button>
+          <button id="allBtn" class="ghost">Tirar las 6 juntas</button>
+          <button id="resetBtn" class="ghost">Empezar de nuevo</button>
+        </div>
+        <p class="hint">Cara vale 3, ceca vale 2. Suma 6 o 9 = línea móvil (en rojo): la situación está cambiando ahí. La app te dice qué línea manda según la regla clásica.</p>
+      </div>
+    </section>
+
+    <section class="panel" id="result" aria-live="polite"></section>
+  </div>
+
+  <section class="panel" aria-labelledby="h-diario">
+    <h3 id="h-diario">Diario de consultas · en este navegador</h3>
+    <div class="history" id="history"></div>
+  </section>
+
+  <footer>
+    El I Ching (易經, "Clásico de los Cambios") no tiene poder predictivo comprobado. Lo que sí hace bien: el azar te saca de tu sesgo y la imagen te obliga a mirar la situación desde otro ángulo. La lectura es tuya.
+  </footer>
+</div>
+
+<script>
+const TRI = {
+  qian:{b:"111",s:"☰",n:"Cielo",a:"fuerza"}, kun:{b:"000",s:"☷",n:"Tierra",a:"receptividad"},
+  zhen:{b:"100",s:"☳",n:"Trueno",a:"movimiento"}, kan:{b:"010",s:"☵",n:"Agua",a:"peligro"},
+  gen:{b:"001",s:"☶",n:"Montaña",a:"quietud"}, xun:{b:"011",s:"☴",n:"Viento",a:"penetración"},
+  li:{b:"101",s:"☲",n:"Fuego",a:"claridad"}, dui:{b:"110",s:"☱",n:"Lago",a:"alegría"}
+};
+// [n, superior, inferior, hanzi, pinyin, nombre, sentido, pregunta1, pregunta2, acción]
+const H = [
+[1,"qian","qian","乾","Qián","Lo Creativo","Energía de inicio en estado puro: momento de liderar con fuerza constante, no con un impulso que se apaga.","¿Qué iniciativa depende solo de vos?","¿Tu fuerza es sostenible o es un pico?","Tomá la iniciativa y sostené el ritmo, sin soberbia."],
+[2,"kun","kun","坤","Kūn","Lo Receptivo","Acompañar y sostener. La realidad marca el camino; forzarla ahora cuesta caro.","¿Qué o a quién conviene seguir en vez de liderar?","¿Qué estás forzando?","Escuchá y ejecutá bien lo que ya está en marcha."],
+[3,"kan","zhen","屯","Zhūn","La Dificultad Inicial","Todo nacimiento es desordenado. El caos del arranque es normal, no una señal para abandonar.","¿Qué parte del desorden es propia de cualquier comienzo?","¿Qué aliado te falta?","Ordená lo mínimo indispensable y pedí ayuda."],
+[4,"gen","kan","蒙","Méng","La Necedad Juvenil","Falta experiencia. Es momento de aprender, no de opinar.","¿Qué creés saber que en realidad no sabés?","¿Quién ya resolvió esto antes?","Consultá a alguien que ya lo hizo, una vez y en serio."],
+[5,"kan","qian","需","Xū","La Espera","Las condiciones no están maduras. Esperar con preparación no es pasividad.","¿Qué estás apurando?","¿Cómo usás la espera para prepararte?","Prepará todo y no muevas la pieza todavía."],
+[6,"qian","kan","訟","Sòng","El Conflicto","Choque de intereses. Llevarlo hasta el final cuesta más de lo que deja.","¿Vale la pena ganar esta pelea?","¿Qué parte de razón tiene el otro?","Buscá acuerdo o mediador antes de escalar."],
+[7,"kun","kan","師","Shī","El Ejército","Organizar fuerzas: disciplina, objetivo claro y un mando reconocido.","¿Está claro quién decide?","¿Tu equipo conoce el objetivo?","Definí roles, objetivo y una sola voz de mando."],
+[8,"kan","kun","比","Bǐ","La Solidaridad","El momento pide unirse. Quien llega tarde a la alianza queda afuera.","¿Con quién te conviene unirte?","¿Estás postergando sumarte?","Convocá o sumate ahora."],
+[9,"xun","qian","小畜","Xiǎo Chù","La Fuerza Domesticadora de lo Pequeño","Frenos chicos. Se avanza por detalles, no a los golpes.","¿Qué detalle te está frenando?","¿Qué podés mejorar de a poco?","Resolvé tres cosas chicas esta semana."],
+[10,"qian","dui","履","Lǚ","El Porte","Pisar la cola del tigre: moverse con tacto frente a alguien más fuerte.","¿Frente a quién tenés que cuidar las formas?","¿Tu conducta está a la altura?","Sé correcto y firme a la vez."],
+[11,"kun","qian","泰","Tài","La Paz","Cielo y tierra se comunican: flujo, armonía, buen momento para crecer.","¿Qué está funcionando y cómo lo potenciás?","¿Qué preparás para cuando cambie?","Invertí en lo que fluye y guardá reserva."],
+[12,"qian","kun","否","Pǐ","El Estancamiento","Las partes no se comunican; nada avanza.","¿Dónde está trabada la comunicación?","¿Conviene replegarse?","No fuerces. Cuidá tu integridad y esperá el giro."],
+[13,"qian","li","同人","Tóng Rén","Comunidad con los Hombres","Unión abierta alrededor de un fin común, no de un interés privado.","¿Qué objetivo compartido junta a la gente?","¿Armás grupo por propósito o por conveniencia?","Comunicá el propósito en público."],
+[14,"li","qian","大有","Dà Yǒu","La Posesión de lo Grande","Abundancia. La tarea es administrar bien lo que ya hay.","¿Qué recursos tenés sin usar?","¿Dónde asoma la soberbia?","Poné a trabajar lo que ya tenés."],
+[15,"kun","gen","謙","Qiān","La Modestia","La montaña bajo la tierra: equilibrar, bajar el perfil, nivelar.","¿Dónde sobra ego?","¿Qué estás sobrecompensando?","Dejá que el resultado hable."],
+[16,"zhen","kun","豫","Yù","El Entusiasmo","Energía que moviliza a otros, si tiene dirección.","¿Qué entusiasmo podés contagiar?","¿Es entusiasmo o euforia?","Usá el impulso para mover gente, con plan."],
+[17,"dui","zhen","隨","Suí","El Seguimiento","Para que te sigan, primero adaptate a lo que pide el momento.","¿Qué cambio conviene acompañar?","¿A quién seguís y por qué?","Ajustá el plan al contexto."],
+[18,"gen","xun","蠱","Gǔ","El Trabajo en lo Echado a Perder","Algo se deterioró, a veces heredado. Hay que repararlo de raíz.","¿Qué está podrido y nadie toca?","¿Qué arrastrás de antes?","Diagnosticá la causa y corregila."],
+[19,"kun","dui","臨","Lín","El Acercamiento","Algo crece y se acerca. La ventana es real y también es corta.","¿Qué oportunidad se acerca?","¿Cuánto dura la ventana?","Movete ahora, sabiendo que cierra."],
+[20,"xun","kun","觀","Guān","La Contemplación","Mirar la situación desde arriba, y saber que otros te miran.","¿Qué ves si mirás el cuadro entero?","¿Qué ejemplo estás dando?","Tomate un día para observar sin actuar."],
+[21,"li","zhen","噬嗑","Shì Kè","La Mordedura Tajante","Hay un obstáculo concreto que se corta con decisión.","¿Qué hay que morder de una vez?","¿Qué venís tolerando?","Tomá la medida firme que postergás."],
+[22,"gen","li","賁","Bì","La Gracia","La forma embellece, pero no reemplaza el fondo.","¿La presentación ayuda o disfraza?","¿Qué hay debajo?","Mejorá la forma solo si el contenido ya está."],
+[23,"gen","kun","剝","Bō","La Desintegración","Algo se desarma solo. No es momento de actuar sino de proteger la base.","¿Qué se está cayendo por su cuenta?","¿Qué base tenés que proteger?","Quieto. Cuidá lo esencial y dejá caer el resto."],
+[24,"kun","zhen","復","Fù","El Retorno","Después de la caída vuelve la luz: empieza un ciclo nuevo.","¿A qué conviene volver?","¿Qué hábito sano retomás?","Empezá de nuevo: chico y constante."],
+[25,"qian","zhen","無妄","Wú Wàng","La Inocencia","Actuar sin segundas intenciones. Lo inesperado castiga el cálculo.","¿Tus motivos son limpios?","¿Qué especulación sobra?","Hacé lo correcto y soltá el resultado."],
+[26,"gen","qian","大畜","Dà Chù","La Fuerza Domesticadora de lo Grande","Acumular fuerza, saber y recursos antes del salto.","¿Qué estás juntando para el paso grande?","¿Qué te falta aprender?","Guardá energía y estudiá antes de saltar."],
+[27,"gen","zhen","頤","Yí","La Nutrición","Lo que te alimenta, en cuerpo y en mente, define lo que sos.","¿Qué consumís que te debilita?","¿A quién alimentás vos?","Revisá qué entra: comida, información, gente."],
+[28,"dui","xun","大過","Dà Guò","La Preponderancia de lo Grande","Exceso de carga: la viga se curva.","¿Qué sobrecarga estás sosteniendo?","¿Qué medida excepcional hace falta?","Aliviá la carga o actuá fuera de lo normal, ya."],
+[29,"kan","kan","坎","Kǎn","Lo Abismal","Peligro repetido. Se atraviesa como el agua: sin perder la forma, sin detenerse.","¿Qué riesgo se repite?","¿Qué te mantiene firme?","Seguí avanzando con constancia; no te congeles."],
+[30,"li","li","離","Lí","Lo Adherente","El fuego da luz pero necesita algo de qué agarrarse.","¿De qué dependés?","¿Qué ves con claridad hoy?","Aferrate a lo correcto y comunicá claro."],
+[31,"dui","gen","咸","Xián","El Influjo","Atracción mutua. Se influye desde la receptividad, no desde la presión.","¿Qué te atrae y por qué?","¿Estás abierto a ser influido?","Escuchá primero; la influencia viene del vínculo."],
+[32,"zhen","xun","恆","Héng","La Duración","Lo que dura se renueva sin cambiar el rumbo.","¿Qué sostenés por compromiso real?","¿Qué rutina sostiene tu dirección?","Mantené el hábito; no cambies de rumbo."],
+[33,"qian","gen","遯","Dùn","La Retirada","Retirarse a tiempo es fuerza, no derrota.","¿De qué conviene salir ahora?","¿Qué pelea no es tuya?","Retirate con dignidad y guardá fuerzas."],
+[34,"zhen","qian","大壯","Dà Zhuàng","El Poder de lo Grande","Mucha fuerza disponible. El riesgo es usarla mal.","¿Al servicio de qué está tu poder?","¿Estás empujando de más?","Usá la fuerza con criterio."],
+[35,"li","kun","晉","Jìn","El Progreso","Avance rápido y visible; llega el reconocimiento.","¿Qué avance podés mostrar?","¿Quién te puede dar impulso?","Mostrá resultados y aceptá el apoyo."],
+[36,"kun","li","明夷","Míng Yí","El Oscurecimiento de la Luz","Entorno adverso. Se protege la luz escondiéndola.","¿Dónde conviene bajar el perfil?","¿Qué valor cuidás por dentro?","Sostené tus principios en silencio."],
+[37,"xun","li","家人","Jiā Rén","La Familia","El orden del núcleo cercano sostiene todo lo demás.","¿Está claro el rol de cada uno?","¿Qué orden interno falta?","Ordená la casa o el equipo chico."],
+[38,"li","dui","睽","Kuí","La Oposición","Diferencias de fondo. Los logros chicos todavía son posibles.","¿Qué diferencia podés aceptar sin resolver?","¿Dónde sí coinciden?","Buscá acuerdos chicos, no unidad total."],
+[39,"kan","gen","蹇","Jiǎn","El Impedimento","Obstáculo adelante: frenar y revisar la parte propia.","¿Qué dice este obstáculo de vos?","¿A quién podés pedir ayuda?","Pará, revisá tu parte y buscá apoyo."],
+[40,"zhen","kan","解","Xiè","La Liberación","La tensión se afloja. Perdonar y seguir.","¿Qué podés soltar?","¿Qué cuenta pendiente cerrás?","Cerrá el tema rápido y volvé a lo normal."],
+[41,"gen","dui","損","Sǔn","La Merma","Reducir. Menos es más cuando sobra.","¿Qué gasto o compromiso recortás?","¿Qué sacrificio vale la pena?","Recortá una cosa concreta hoy."],
+[42,"xun","zhen","益","Yì","El Aumento","Ganancia y viento a favor: momento de emprender y de dar.","¿Qué empezás ahora que el momento ayuda?","¿Qué compartís de lo que ganás?","Lanzá; el momento acompaña."],
+[43,"dui","qian","夬","Guài","La Resolución","Decisión firme y pública frente a lo que está mal.","¿Qué hay que decir en voz alta?","¿Podés hacerlo sin violencia?","Decidí y comunicalo con claridad."],
+[44,"qian","xun","姤","Gòu","El Ir al Encuentro","Aparece una influencia tentadora. Cuidado con darle poder.","¿Qué persona o tentación se está metiendo?","¿Le estás dando demasiado lugar?","Poné límites desde el principio."],
+[45,"dui","kun","萃","Cuì","La Reunión","La gente se junta alrededor de un centro. Con la reunión vienen los roces.","¿Qué te reúne con otros?","¿Estás preparado para el conflicto?","Convocá y anticipá los choques."],
+[46,"kun","xun","升","Shēng","La Subida","Crecimiento gradual, como una planta que empuja hacia arriba.","¿Cuál es el próximo escalón concreto?","¿A quién conviene ir a ver?","Un escalón por día; buscá a quien decide."],
+[47,"dui","kan","困","Kùn","El Agotamiento","Escasez y cansancio. Las palabras no alcanzan.","¿Qué te está agotando?","¿Qué sostiene tu ánimo por dentro?","Hablá menos, cuidate más, aguantá con calma."],
+[48,"kan","xun","井","Jǐng","El Pozo de Agua","La fuente que no se agota. Volver a lo esencial.","¿Cuál es tu fuente real de valor?","¿La estás cuidando?","Invertí en tu base: salud, oficio, gente."],
+[49,"dui","li","革","Gé","La Revolución","Cambio de fondo, cuando el momento está maduro.","¿Qué hay que cambiar de raíz?","¿Es el momento o es ansiedad?","Prepará el cambio y ejecutalo con consenso."],
+[50,"li","xun","鼎","Dǐng","El Caldero","Transformación que nutre. Estructura que perdura.","¿Qué estás cocinando a largo plazo?","¿Qué estructura lo sostiene?","Dale forma estable a lo que funciona."],
+[51,"zhen","zhen","震","Zhèn","El Trueno","Un sacudón que despierta.","¿Qué te sacudió y qué te muestra?","¿Mantenés la calma?","Respirá, aprendé del susto y seguí."],
+[52,"gen","gen","艮","Gèn","El Aquietamiento","La montaña: quietud de cuerpo y mente.","¿Qué pasa si no hacés nada por un rato?","¿Dónde está el ruido?","Pará. Caminá o meditá sin teléfono."],
+[53,"xun","gen","漸","Jiàn","El Progreso Paulatino","Desarrollo lento y correcto, como un árbol en la montaña.","¿Qué estás queriendo acelerar?","¿Cuál es el paso que sigue?","Respetá los pasos; sin atajos."],
+[54,"zhen","dui","歸妹","Guī Mèi","La Muchacha que se Casa","Posición subordinada. Se actúa con tacto, sin exigir.","¿Estás en posición de poder o de dependencia?","¿Qué expectativas son irreales?","Ajustá expectativas y cuidá el vínculo."],
+[55,"zhen","li","豐","Fēng","La Abundancia","El cenit. Disfrutarlo sin aferrarse, porque pasa.","¿Qué está en su punto máximo?","¿Qué hacés antes de que baje?","Aprovechá el pico y prepará el después."],
+[56,"li","gen","旅","Lǚ","El Andariego","Ser extranjero: prudencia, discreción, equipaje liviano.","¿Dónde sos nuevo o estás de paso?","¿Qué reglas ajenas tenés que respetar?","Movete liviano, discreto y cortés."],
+[57,"xun","xun","巽","Xùn","Lo Suave","El viento: influencia suave y constante que penetra.","¿Qué lográs con persistencia en vez de fuerza?","¿Tu mensaje es claro?","Repetí el mensaje, suave y constante."],
+[58,"dui","dui","兌","Duì","Lo Sereno","El lago: alegría compartida e intercambio.","¿Con quién compartís y aprendés?","¿Tu alegría es genuina?","Conversá, enseñá, compartí."],
+[59,"xun","kan","渙","Huàn","La Disolución","Disolver rigideces y egos que separan.","¿Qué rigidez está dividiendo?","¿Qué une a todos?","Disolvé la tensión con un propósito común."],
+[60,"kan","dui","節","Jié","La Limitación","Límites sanos: ni ausentes ni asfixiantes.","¿Qué límite te falta?","¿Cuál es tan duro que nadie lo cumple?","Poné un límite claro y realista."],
+[61,"xun","dui","中孚","Zhōng Fú","La Verdad Interior","Sinceridad que llega incluso a los difíciles.","¿Qué es verdad para vos en esto?","¿Entendés de verdad al otro?","Hablá desde lo que realmente pensás."],
+[62,"zhen","gen","小過","Xiǎo Guò","La Preponderancia de lo Pequeño","Momento de cosas chicas. Apuntar alto ahora es error.","¿Qué detalle chico importa hoy?","¿Estás apuntando demasiado alto?","Hacé lo pequeño impecable."],
+[63,"kan","li","既濟","Jì Jì","Después de la Consumación","Todo en orden. Justo ahí empieza el desorden.","¿Qué funciona y puede romperse por descuido?","¿Dónde te relajaste?","Revisá lo que das por hecho."],
+[64,"li","kan","未濟","Wèi Jì","Antes de la Consumación","Casi listo. El último tramo pide la mayor cautela.","¿Qué falta para cerrar?","¿Dónde podés tropezar al final?","Último tramo con cuidado, como zorro sobre hielo."]
+];
+const LX = {"1":{"img":"El cielo se mueve sin pausa: la persona sabia se fortalece a sí misma todos los días, sin aflojar.","l":["Dragón oculto. Todavía no es tu momento de actuar; juntá fuerza, prepará y no te muestres antes de tiempo.","Dragón en el campo. Tu capacidad empieza a verse; conviene buscar a alguien con peso que te respalde.","Trabajás todo el día y a la noche seguís alerta. Hay riesgo, pero la atención constante te evita el error.","Vuelo indeciso sobre el abismo. Podés saltar o quedarte; elegí según tu verdad, no hay culpa en ninguna.","Dragón volando en el cielo. Momento pleno de influencia; aliate con gente grande y usá bien la posición.","Dragón soberbio. Subiste demasiado y perdiste contacto con los demás; si no bajás un cambio, vas a lamentarlo."],"all":"Bandada de dragones sin cabeza. Toda la fuerza en movimiento, pero nadie se impone: liderar sin protagonismo trae buena fortuna."},"2":{"img":"La tierra es receptiva y amplia: la persona sabia sostiene a todo y a todos con la anchura de su carácter.","l":["Escarcha bajo los pies. Ya se anuncia el hielo firme; prestá atención a las señales chicas antes de que crezcan.","Recto, cuadrado, amplio. Actuando según tu naturaleza, sin forzar ni calcular, todo sale bien. Favorable.","Talento escondido. Trabajá para un fin mayor sin reclamar el mérito; terminar bien vale más que figurar.","Bolsa atada. Momento de reserva total: callá, no te expongas. Ni elogio ni culpa, y eso está bien.","Ropa amarilla de abajo. Discreción y autenticidad en un lugar alto: suprema buena fortuna sin necesidad de mostrarse.","Dragones pelean en el campo y sangran. Lo receptivo quiso imponerse como fuerte; el choque lastima a ambos lados."],"all":"Constancia duradera. Cuando todo cambia a la vez, lo que te favorece es mantenerte firme y perseverante en lo correcto."},"3":{"img":"Nubes y trueno: la persona sabia pone orden en la confusión, tejiendo hilo por hilo.","l":["Vacilación y obstáculo. No fuerces el avance; mantené el rumbo y sumá ayudantes. Conviene asentarse primero.","Los problemas se acumulan y el carro se detiene. Lo que llega no es un enemigo; no aceptes ayuda apurado, esperá.","Cazar un ciervo sin guía. Te metés en el bosque sin conocerlo y te perdés; mejor desistir ahora que pasar vergüenza.","Caballo y carro se separan. Buscá la unión con quien puede ayudarte; dar ese paso trae buena fortuna.","Dificultad para repartir lo que tenés. Avanzá de a poco y será favorable; querer imponerte en grande sale mal.","El carro se separa, lágrimas de sangre. Si te dejás vencer por la dificultad, el desánimo te come. Desfavorable."]},"4":{"img":"Manantial al pie de la montaña: la persona sabia forma su carácter con constancia y acción a fondo.","l":["Para despertar al inexperto hace falta disciplina, no castigo eterno. Poné límites y después soltá las cadenas.","Tratar con paciencia a quien no sabe trae buena fortuna. Tenés capacidad para hacerte cargo; ejercela con amabilidad.","No te entregues a quien te deslumbra por lo que tiene. Perder tu centro por una apariencia no trae nada bueno.","Necedad enredada. Encerrarte en fantasías y no escuchar a nadie trae humillación. Salí de ahí cuanto antes.","Necedad infantil. La humildad de quien sabe que no sabe y pregunta trae buena fortuna. Aprendé abierto.","Corregir la necedad. Poné límites firmes para evitar daños, no para castigar. El exceso de dureza también es error."]},"5":{"img":"Nubes que suben al cielo: la persona sabia come, bebe y está serena mientras espera la lluvia.","l":["Esperar en el prado. El peligro todavía está lejos; seguí con tu rutina y no te desgastes anticipando. Sin culpa.","Esperar en la arena. Ya hay algo de chisme o roce; no respondas, mantené la calma y al final sale bien.","Esperar en el barro. Te metiste antes de tiempo y quedaste expuesto; eso atrae al enemigo. Cuidado y prudencia.","Esperar en la sangre. Estás en el medio del peligro; no luches, quedate quieto y salí del pozo como puedas.","Esperar con comida y vino. Hay una pausa en medio de la tensión; disfrutala y seguí firme. Buena fortuna.","Caés en el pozo y llegan tres visitas inesperadas. Recibilas con respeto: la ayuda viene por donde no esperabas."]},"6":{"img":"Cielo y agua van en sentidos opuestos: la persona sabia piensa bien el comienzo de cada asunto.","l":["No estirar el conflicto. Habrá algún comentario, pero si lo dejás temprano, al final sale bien.","No podés ganar esta disputa. Retirate a tiempo y volvé a casa; así protegés a los tuyos de las consecuencias.","Vivir de lo que ya es tuyo. Quedate con lo heredado o ganado sin pelear por más; hay riesgo, pero termina bien.","No podés pelear y lo aceptás: cambiás de actitud y buscás la paz. Ese giro interior trae buena fortuna.","Llevar el conflicto ante alguien justo. Si el árbitro es recto y tenés razón, el resultado es muy favorable.","Ganar el pleito por la fuerza. Te dan el premio, pero te lo quitan tres veces en una mañana. Victoria que no dura."]},"7":{"img":"Agua dentro de la tierra: la persona sabia hace crecer a su gente siendo generosa con ella.","l":["El ejército sale en orden. Sin disciplina y una causa clara desde el inicio, termina mal. Ordená antes de moverte.","En medio del ejército. El líder comparte el frente con su gente y tiene el respaldo de arriba. Buena fortuna.","El ejército carga cadáveres. Mando confuso, varios queriendo decidir: termina en derrota. Desfavorable.","El ejército se retira. Retroceder ante una fuerza mayor no es cobardía, es sensatez. Sin culpa.","Hay presa en el campo: actuá. Pero si mandás a alguien inexperto en vez del capaz, el resultado es malo.","El soberano reparte los frutos. Premiá a quienes lo merecen, pero no le des poder a gente mezquina."]},"8":{"img":"Agua sobre la tierra: la persona sabia funda vínculos y cultiva relaciones de confianza con los cercanos.","l":["Unirte con sinceridad y lealtad. Como un cuenco lleno: la verdad atrae buena fortuna incluso de afuera.","Unión que nace de adentro. Te acercás por convicción, no por conveniencia; mantenela firme y será favorable.","Unirte con la gente equivocada. Te juntás con quienes no comparten tus valores; eso trae dolor. Cuidado.","Unión hacia afuera. Te sumás abiertamente a alguien que vale la pena; sostené esa relación. Favorable.","Unión manifiesta. Sos centro y convocás sin forzar; dejá ir al que se va. Buena fortuna.","Unirse sin cabeza. Llegaste tarde o sin un centro claro; el grupo no se arma y termina mal. Desfavorable."]},"9":{"img":"El viento recorre el cielo: la persona sabia pule su forma de mostrarse mientras espera su momento.","l":["Volver a tu camino. Si notás que te desviaste, regresar a lo propio no tiene culpa. Buena fortuna.","Te dejás llevar de vuelta junto con otros. Retirarte cuando corresponde, acompañado, trae buena fortuna.","Los rayos se salen de la rueda. Forzar avanzar en un vínculo trabado genera pelea; frená antes de que se rompa.","Si sos sincero, la sangre se va y el miedo cede. La honestidad desarma el conflicto. Sin culpa.","Sinceridad que une. Compartís tu riqueza con los cercanos y la fuerza crece entre todos. Favorable.","Llega la lluvia, llega el descanso. Lo logrado está casi pleno; no sigas empujando, porque ahora insistir sale mal."]},"10":{"img":"Cielo arriba, lago abajo: la persona sabia distingue lo alto de lo bajo y afirma el sentido de cada lugar.","l":["Conducta simple. Avanzá con sencillez y sin pretensiones; así no hay culpa ni tropiezo.","Pisar un camino llano. La persona tranquila y sin ambiciones ajenas avanza bien. Firmeza y buena fortuna.","El tuerto cree ver, el rengo cree caminar. Te sobreestimás y pisás la cola del tigre: muerde. Desfavorable.","Pisás la cola del tigre, pero con cautela y respeto. El peligro es real; la prudencia te saca bien parado.","Conducta decidida. Tenés que avanzar firme, pero sabiendo el riesgo; la decisión sin conciencia es peligrosa.","Mirá tu conducta y sus frutos. Si al revisar todo está bien hecho, suprema buena fortuna."]},"11":{"img":"Cielo y tierra se unen: la persona sabia ordena los ciclos y ayuda a la gente a aprovecharlos.","l":["Al arrancar el pasto sale con la raíz. Los afines se arrastran juntos; es buen momento para emprender.","Tolerar a los toscos, cruzar el río con decisión, no olvidar lo lejano ni a los aliados. Andá por el medio.","No hay llano sin cuesta ni ida sin vuelta. Sé firme en la dificultad que viene y disfrutá lo bueno que todavía tenés.","Descender sin presumir. Te acercás a los de abajo con sinceridad, sin alardear de riqueza. Hay confianza.","El soberano da a su hija en matrimonio. Unir lo alto con lo bajo con humildad trae bendición. Muy favorable.","El muro cae al foso. La paz se termina: no salgas a pelear, ordená lo propio. Insistir trae humillación."]},"12":{"img":"Cielo y tierra no se unen: la persona sabia se repliega en su valor interior y no acepta honores que la comprometan.","l":["Al arrancar el pasto sale con la raíz. Retirate junto con los tuyos y mantené la firmeza. Favorable.","Aguantar y soportar. A la gente chica le va bien acomodándose; vos sostené tu posición y vas a salir adelante.","Cargar con la vergüenza. Llegaste a un lugar que no te corresponde y empezás a darte cuenta. Es el inicio del cambio.","Actuar por un mandato superior. Si te movés por algo justo y no por ego, sin culpa; los afines se suman.","El estancamiento cede. Momento favorable para quien está a la altura, pero cuidá lo logrado como si pudiera caer.","El estancamiento termina. Primero bloqueo, después alegría: tu acción ayuda a destrabarlo. Buena fortuna."]},"13":{"img":"Cielo junto al fuego: la persona sabia organiza a la gente por afinidad y distingue cada cosa con claridad.","l":["Comunidad en la puerta. Te unís a otros abiertamente, sin secretos ni intereses ocultos. Sin culpa.","Comunidad solo con el clan. Juntarte solo con los tuyos por conveniencia cierra el grupo y trae humillación.","Armas escondidas en la maleza. La desconfianza te hace esperar emboscadas que no llegan; así no avanzás en años.","Subís a tu muro pero no atacás. Te das cuenta de que pelear no tiene sentido y frenás a tiempo. Buena fortuna.","Primero lloran, después ríen. La unión verdadera se logra tras superar obstáculos; el esfuerzo vale la pena.","Comunidad en el campo abierto. Te unís con gente lejana, sin un fin profundo, pero tampoco hay arrepentimiento."]},"14":{"img":"Fuego en lo alto del cielo: la persona sabia frena lo malo, impulsa lo bueno y sigue el curso correcto.","l":["Lejos de lo dañino. Todavía no hubo errores; si sos consciente de lo difícil que es tener mucho, sin culpa.","Un carro grande para cargar. Tenés recursos y gente capaz; podés emprender algo. Sin culpa.","Ofrecer lo propio al bien común. Quien es grande lo pone al servicio; el mezquino no puede. Usalo bien.","No ostentar. Te diferenciás del vecino sin mostrar lo que tenés; la discreción te protege. Sin culpa.","Verdad accesible y digna. Sos cercano pero con autoridad; la sinceridad te da respeto. Buena fortuna.","Bendecido desde arriba. Todo lo que hacés con modestia favorece. Buena fortuna plena."]},"15":{"img":"Una montaña dentro de la tierra: la persona sabia reduce lo que sobra, completa lo que falta y equilibra.","l":["Modesto incluso con su modestia. Con esa actitud podés encarar algo grande y cruzar el río. Buena fortuna.","Modestia que se expresa. Lo que sos se nota sin que lo digas; mantenete firme. Favorable.","Modestia con mérito. Hiciste algo valioso y no te lo adjudicás; vas a terminar bien lo que empezaste. Buena fortuna.","Modestia en acción. No te escondas: todo lo que hagas con humildad activa favorece. Movete.","Sin presumir ante el vecino. Ser modesto no es ser blando; si hay que actuar con firmeza, actuá. Favorable.","Modestia que se hace oír. Ordená primero tu propia casa y tu gente antes de corregir a otros."]},"16":{"img":"El trueno sale de la tierra resonando: la persona sabia usa la música y el ritual para unir a la gente.","l":["Entusiasmo que se jacta. Presumir de tus contactos o de lo que viene trae mala suerte. Callá.","Firme como una roca. No te dejes llevar por la euforia general; reconocé el momento justo y retirate a tiempo. Favorable.","Entusiasmo que mira hacia arriba. Esperar que otro te dé el impulso trae arrepentimiento; dudar también. Movete solo.","Fuente del entusiasmo. Sos quien mueve a otros; no dudes y vas a reunir a los amigos como un broche junta el pelo.","Siempre enfermo, pero no muere. La presión constante te impide disfrutar, aunque también te mantiene alerta.","Entusiasmo ciego. Te dejaste llevar, pero si cambiás después de darte cuenta, no hay culpa. Corregí."]},"17":{"img":"Trueno escondido dentro del lago: cuando cae la tarde, la persona sabia entra a su casa y descansa sin culpa.","l":["Cambia quien manda. Salí por la puerta y tratá con gente de afuera de tu círculo: eso trae logros. Favorable.","Te aferrás al muchachito y perdés al hombre fuerte. Si elegís lo chico y cómodo, perdés lo grande. Cuidado.","Te aferrás al hombre fuerte y soltás al muchachito. Conseguís lo que buscás si sostenés la elección con firmeza.","Te siguen, pero si te dejás llevar por eso, sale mal. Con sinceridad y claridad no hay culpa. Ojo con los aduladores.","Confianza sincera puesta en lo bueno. Seguí lo que de verdad vale la pena: ventura.","Atado y comprometido del todo, hasta lo más alto. Un lazo profundo con quien te sigue o a quien seguís. Favorable si es genuino."]},"18":{"img":"Viento al pie de la montaña: la persona sabia sacude a la gente y fortalece su ánimo para reparar lo dañado.","l":["Reparás lo que dejó mal el padre. Hay riesgo, pero si el hijo es capaz, termina bien. Corregí lo heredado ahora.","Reparás lo que dejó mal la madre. Algo delicado: no seas demasiado duro ni rígido al corregirlo.","Reparás lo del padre con algo de exceso. Habrá un poco de arrepentimiento, pero sin culpa grave: mejor pasarse que no hacer nada.","Tolerás lo que está podrido sin tocarlo. Si seguís así, terminás avergonzado. Desfavorable: hay que intervenir.","Reparás lo del padre y recibís reconocimiento. Corregir con buenos aliados te da prestigio. Favorable.","No servís a reyes ni a príncipes: te fijás metas más altas. A veces lo correcto es correrse y cultivarte vos."]},"19":{"img":"Tierra sobre el lago: la persona sabia enseña sin cansarse y cuida a la gente sin poner límites.","l":["Acercamiento en conjunto con otros. Mantené el rumbo correcto: ventura.","Acercamiento en conjunto, con apoyo de arriba. Ventura, todo favorable.","Acercamiento cómodo, a fuerza de complacer. No sirve de nada. Si te das cuenta y corregís a tiempo, no hay culpa.","Acercamiento total y directo, con compromiso real. Sin culpa: involucrate de verdad.","Acercamiento sabio, como un gran líder que elige bien en quién delegar. Ventura.","Acercamiento generoso, desde la experiencia y sin esperar nada. Ventura y sin culpa."]},"20":{"img":"Viento que recorre la tierra: los antiguos reyes visitaban las regiones, miraban cómo vivía la gente y enseñaban.","l":["Mirás como un chico: superficial. Para alguien sin responsabilidad no es grave; para quien decide, es vergonzoso.","Mirás por la rendija de la puerta: ves solo una parte. Ampliá la mirada antes de juzgar.","Mirá tu propia vida y sus efectos para decidir si avanzar o retirarte. La respuesta está en tu historia.","Ves con claridad cómo funciona el lugar. Conviene ofrecer tus capacidades a quien conduce. Favorable.","Mirá tu vida a través de lo que provocás en otros. Si el efecto es bueno, no hay culpa.","Mirás tu vida desde afuera, sin apego. Distancia sana: sin culpa."]},"21":{"img":"Trueno y relámpago juntos: los antiguos reyes aclaraban los castigos y dejaban firmes las leyes.","l":["Pies en el cepo, los dedos tapados. Un freno chico a tiempo evita el error grande. Sin culpa.","Mordés carne blanda y se te hunde la nariz. Te pasás un poco de duro, pero está justificado. Sin culpa.","Mordés carne seca y vieja y encontrás veneno. Te topás con resistencia vieja: algo de vergüenza, sin culpa grave.","Mordés carne seca con hueso y aparecen flechas de metal. Es duro, pero si perseverás en la dificultad: ventura.","Mordés carne seca y encontrás oro. Sé firme y justo, sabiendo que hay riesgo. Sin culpa.","El cuello en la canga y las orejas tapadas. No escuchás las advertencias. Desventura: escuchá antes de que sea tarde."]},"22":{"img":"Fuego al pie de la montaña: la persona sabia aclara los asuntos chicos, pero no decide los grandes por la apariencia.","l":["Adornás los pies, dejás el carruaje y vas caminando. Elegí lo sencillo por dignidad, no por necesidad.","Adornás la barba. La forma acompaña al contenido, nunca lo reemplaza. Mirá qué hay debajo.","Brillante y empapado de gracia. Ojo con dormirte en el confort: con constancia, ventura.","Dudás entre brillo y sencillez; llega un caballo blanco veloz. No es un ladrón: viene a proponer. Elegí lo simple y llega el aliado.","Gracia en colinas y jardines, con un regalo pobre. Da algo de vergüenza, pero lo sincero termina bien. Ventura.","Gracia simple, blanca, sin adornos. Lo esencial alcanza. Sin culpa."]},"23":{"img":"Montaña apoyada sobre la tierra: quien está arriba asegura su lugar siendo generoso con los de abajo.","l":["Se rompe la pata de la cama. El daño empieza por la base. Desventura: no es momento de actuar.","Se rompe el borde de la cama. El deterioro avanza y no hay apoyo. Desventura: quedate quieto.","Te separás de los que están destruyendo. Desligarte del entorno que se pudre: sin culpa.","La cama se rompe hasta tocar la piel. El daño ya te alcanza a vos. Desventura: protegé lo esencial.","Un cardumen de peces, ordenados, recibiendo favor. El grupo se recompone bajo una buena guía. Todo favorable.","Un gran fruto que nadie comió. Al sabio le dan un carruaje; al mezquino se le cae la casa. Queda la semilla de lo nuevo."]},"24":{"img":"Trueno dentro de la tierra: en el solsticio los antiguos reyes cerraban los pasos y todos descansaban.","l":["Volvés después de desviarte poco. No hace falta arrepentirse: gran ventura. Corregí ya.","Volvés con calma, siguiendo un buen ejemplo. Ventura.","Volvés una y otra vez. Ir y volver tantas veces es riesgoso, pero sin culpa. Buscá constancia.","Caminás en medio de otros y volvés solo. Elegir tu camino aunque el grupo siga: correcto.","Volvés con nobleza y te hacés cargo. Sin arrepentimiento.","Perdés el camino de vuelta. Grave desventura: derrota que tarda años en repararse. No te empecines."]},"25":{"img":"Bajo el cielo corre el trueno: los antiguos reyes, plenos de virtud, alimentaban a todos según el momento.","l":["Conducta inocente, sin cálculo. Ventura: avanzá.","Arás sin pensar en la cosecha, desbrozás sin pensar en el uso. Hacé bien la tarea por sí misma: favorable emprender.","Desgracia inmerecida: alguien se lleva la vaca atada y la sospecha cae en el vecino. Pasa sin que sea tu culpa; no te amargues.","Podés mantenerte firme en lo tuyo. Sostené tu posición: sin culpa.","Una enfermedad que no es culpa tuya: no uses remedio, se cura sola. No intervengas de más.","Actuar, aun con buena intención, trae desgracia ahora. Nada favorable: quedate quieto."]},"26":{"img":"El cielo contenido dentro de la montaña: la persona sabia estudia palabras y hechos del pasado para fortalecerse.","l":["Hay peligro adelante. Conviene detenerse. Frenar ahora es fuerza, no debilidad.","Se sacan los ejes del carro. Estás contenido por algo más fuerte: esperá sin pelear.","Un buen caballo sigue a otros. Avanzá consciente del riesgo, practicando la defensa cada día: favorable tener adónde ir.","Una tabla en los cuernos del ternero. Prevenir antes de que la fuerza crezca: gran ventura.","El colmillo del jabalí castrado. Neutralizá la causa, no el síntoma: ventura.","Llegás al camino del cielo. Se libera la fuerza acumulada: éxito."]},"27":{"img":"Trueno al pie de la montaña: la persona sabia cuida lo que dice y modera lo que come y bebe.","l":["Dejás tu propia tortuga mágica y mirás con la boca abierta lo ajeno. Envidiar y abandonar lo propio: desventura.","Buscás alimento en la cumbre, fuera del camino. Pedir sustento a quien no corresponde: desventura.","Te apartás de lo que nutre. Insistir en eso trae desventura y años perdidos. Cambiá de fuente.","Buscás alimento arriba para un buen fin, atento como un tigre. Pedir ayuda para servir a otros: ventura, sin culpa.","Te apartás de lo habitual. Mantenerte firme trae ventura, pero no cruces el gran río: apoyate en otros, no te lances.","Sos la fuente de la nutrición de otros. Consciente del peligro: ventura. Favorable cruzar el gran río."]},"28":{"img":"El lago tapa los árboles: la persona sabia se para sola sin miedo y se aparta del mundo sin pena.","l":["Ponés una esterilla de juncos blancos debajo. Cuidado extremo al empezar algo grande: sin culpa.","Un sauce seco echa raíces nuevas; un viejo toma esposa joven. Renovación inesperada: todo favorable.","La viga se dobla. Forzar sin escuchar consejo lleva al derrumbe. Desventura.","La viga se refuerza. Ventura, pero si hay segundas intenciones, termina en vergüenza.","Un sauce seco da flores; una vieja toma marido joven. Brillo sin futuro: ni culpa ni elogio.","Cruzás el vado y el agua te tapa la cabeza. Desventura, pero sin culpa: un sacrificio por algo que lo vale."]},"29":{"img":"El agua fluye sin parar hasta llegar: la persona sabia sostiene su virtud y practica lo que enseña.","l":["Abismo sobre abismo: caés en un pozo dentro del pozo. Acostumbrarte al peligro es el peligro. Desventura.","En el abismo hay riesgo. Buscá solo logros chicos: de a poco se sale.","Adelante y atrás, abismo. No te muevas: cualquier esfuerzo te hunde más. Esperá.","Un jarro de vino, un cuenco de arroz, vasijas de barro pasadas por la ventana. Sinceridad simple, sin protocolo: al final sin culpa.","El agua no rebalsa, solo llega al borde. No pidas más que salir del pozo: sin culpa.","Atado con cuerdas, encerrado entre espinos; tres años sin encontrar el camino. Desventura: el error tiene costo largo."]},"30":{"img":"La claridad se eleva dos veces: la persona grande ilumina los cuatro rumbos con una luz constante.","l":["Pasos que se cruzan, confusión al empezar. Con seriedad y orden: sin culpa.","Luz amarilla, la del mediodía equilibrado. El punto medio justo: gran ventura.","Luz del sol que se pone. Aceptar el ocaso con serenidad o lamentarse por la vejez. Lamentarse trae desventura.","Llega de golpe, arde, se apaga y se descarta. Brillo fugaz que se consume solo. Desfavorable.","Lágrimas a raudales, suspiros y lamentos. El cambio verdadero viene de adentro: ventura.","El rey sale a corregir: castiga a los cabecillas, no a los que siguieron. Atacá la causa, no a todos. Sin culpa."]},"31":{"img":"Lago sobre la montaña: la persona sabia recibe a los demás vaciándose de sí, con receptividad.","l":["La influencia llega al dedo gordo del pie. La intención existe pero todavía no mueve nada.","La influencia llega a las pantorrillas. Moverte por impulso trae desventura; quedarte quieto, ventura.","La influencia llega a los muslos: te dejás arrastrar por otros. Seguir así lleva a la vergüenza.","Influencia desde el centro, firme. Se va el arrepentimiento. Si vas y venís inquieto, solo te siguen los cercanos.","La influencia llega a la nuca. Firmeza sin llegar a otros: sin arrepentimiento, pero sin efecto.","La influencia queda en mandíbula, mejillas y lengua. Puro discurso: hablar no alcanza."]},"32":{"img":"Trueno y viento juntos: la persona sabia se mantiene firme y no cambia de dirección.","l":["Querés que algo dure, pero de golpe y demasiado rápido. Insistir así trae desventura: nada favorable.","Se va el arrepentimiento. Mantenete en la medida justa, sin excesos.","No le das constancia a tu carácter: cambiás según el viento. Eso trae vergüenza.","No hay caza en el campo. Buscás con constancia en el lugar equivocado: cambiá de lugar, no de esfuerzo.","Le das constancia a tu carácter. La fidelidad sirve para quien acompaña; quien lidera además tiene que adaptarse.","La inquietud permanente como forma de vida. Nunca parar es también no durar. Desventura."]},"33":{"img":"La montaña bajo el cielo: la persona sabia toma distancia de lo mezquino sin enojo, con dignidad y firmeza.","l":["La cola de la retirada: quedaste último y eso es peligroso. No emprendas nada nuevo; quedate quieto y salí cuando puedas.","Atado con cuero de buey: hay un vínculo o compromiso que no se puede soltar. Sostenelo con firmeza; no es momento de irte.","Retirada frenada por ataduras: te retienen personas o cosas, y eso desgasta. Usá esos vínculos para tareas chicas, no para lo importante.","Retirada elegida a tiempo: quien sabe irse gana. Favorable si actuás con grandeza; si te mueve el resentimiento, sale mal.","Retirada amable: te vas en buenos términos y en el momento justo. Sé firme con la decisión; buena fortuna.","Retirada alegre: ya estás libre, sin dudas ni ataduras. Todo te es favorable; irte ahora es claramente lo correcto."]},"34":{"img":"El trueno sobre el cielo: la persona sabia no pisa caminos que no estén en orden con lo correcto.","l":["Fuerza en los dedos del pie: querés avanzar a lo bruto y desde abajo. Si empujás ahora, sale mal. Esperá.","La perseverancia trae buena fortuna: la fuerza empieza a ceder el paso al criterio. Seguí firme, sin excesos.","El carnero embiste el cerco y se enreda los cuernos: el que usa la fuerza se traba. Peligro; la persona sabia no la usa.","El cerco se abre: la fuerza bien dirigida avanza como el eje de un gran carro. Buena fortuna; el arrepentimiento desaparece.","Perder el carnero con facilidad: soltá la terquedad sin pelear. No hace falta embestir; no hay nada que lamentar.","El carnero trabado en el cerco, sin ir ni volver: empujaste de más. Nada sirve hasta que reconocés la dificultad; después, buena fortuna."]},"35":{"img":"El sol sale sobre la tierra: la persona sabia hace brillar por sí misma sus propias virtudes.","l":["Avanzás pero te frenan: si no confían en vos todavía, mantené la calma y la línea. Sin culpa.","Avance con tristeza: cuesta llegar a quien decide, pero la constancia trae gran apoyo de una figura protectora. Buena fortuna.","Todos te acompañan: hay consenso y confianza alrededor. El arrepentimiento desaparece; avanzá con ellos.","Avanzar como un hámster que acumula: progresar por codicia o escondido es peligroso, aunque parezca que funciona.","El arrepentimiento desaparece: no te obsesiones con ganar o perder. Avanzá con desapego; todo resulta favorable.","Avanzar con los cuernos, solo para castigar lo propio: la dureza sirve para corregir tus errores, no a otros. Con cuidado, buena fortuna."]},"36":{"img":"La luz hundida en la tierra: la persona sabia convive con todos, oculta su brillo y aun así ve claro.","l":["El pájaro baja las alas en pleno vuelo: te conviene alejarte aunque cueste y te critiquen. Sacrificá comodidad por integridad.","Herido en el muslo izquierdo, pero rescatás con un caballo fuerte: el golpe no es grave. Ayudá a otros; buena fortuna.","Cazando en el sur, atrapás al jefe de la oscuridad: podés corregir el problema de raíz, pero sin apuro. No fuerces la limpieza.","Entrás al vientre de la oscuridad y ves su corazón: entendiste cómo es la cosa. Salí de ahí a tiempo.","Como el príncipe Ji, que escondió su luz para sobrevivir: en un entorno hostil, ocultá tus convicciones y mantenelas intactas.","No hay luz, solo oscuridad: lo que subió al cielo cae a la tierra. Lo que oprime termina destruyéndose solo."]},"37":{"img":"El viento que sale del fuego: la persona sabia dice cosas con sustancia y sostiene su conducta en el tiempo.","l":["Reglas claras desde el principio en la casa: poner límites temprano evita problemas. El arrepentimiento desaparece.","Atender lo de adentro, no seguir caprichos: cumplí tu rol y cuidá lo básico, como la comida. Buena fortuna.","Los ánimos se calientan en la familia: ser demasiado severo duele pero sirve; ser demasiado laxo termina en vergüenza.","Ella es el tesoro de la casa: quien administra bien los recursos trae gran buena fortuna.","El rey se acerca a su familia: liderá con afecto, no con miedo. Buena fortuna; no hay nada que temer.","Su trabajo inspira respeto: la sinceridad y la coherencia personal sostienen al grupo. Buena fortuna al final."]},"38":{"img":"El fuego arriba, el lago abajo: la persona sabia conserva su identidad aun cuando se une con otros.","l":["Perdés el caballo: no lo persigas, vuelve solo. Si te cruzás con gente hostil, tratala sin pelear. Sin culpa.","Encontrás a tu jefe en un callejón: un encuentro informal resuelve lo que la vía formal trababa. Sin culpa.","El carro tirado para atrás, los bueyes frenados: el arranque es feo y humillante, pero el final sale bien.","Aislado por la oposición, encontrás a alguien afín: aliate con sinceridad. Hay peligro, pero no culpa.","El arrepentimiento desaparece: un aliado rompe la barrera entre ustedes. Andá a su encuentro; no es error.","La desconfianza te hace ver monstruos donde hay un aliado: bajás el arco a tiempo. Llueve, se despeja la tensión; buena fortuna."]},"39":{"img":"El agua sobre la montaña: la persona sabia vuelve la atención sobre sí misma y trabaja su carácter.","l":["Avanzar lleva al obstáculo; volver trae reconocimiento. Esperá el momento antes de meterte.","Obstáculo tras obstáculo, pero no por tu culpa: estás cumpliendo un deber hacia otro. Seguí, aunque cueste.","Ir lleva al obstáculo, así que volvés: priorizá a los tuyos y lo cercano antes que la aventura.","Ir lleva al obstáculo; volver trae unión: no podés solo. Juntá aliados antes de moverte.","En medio del mayor obstáculo llegan los amigos: si sos el centro, la gente se suma a ayudarte.","Ir lleva al obstáculo; volver trae gran buena fortuna: no te retires del mundo; tu experiencia sirve. Buscá a quien decide."]},"40":{"img":"El trueno y la lluvia se desatan: la persona sabia perdona errores y deja pasar las faltas.","l":["Sin culpa: el obstáculo pasó. Descansá y recuperate en calma; no hace falta hacer más.","Cazás tres zorros y recibís una flecha amarilla: sacás a los aduladores con rectitud. Perseverá; buena fortuna.","Cargás un bulto pero viajás en carruaje: aparentar más de lo que sos atrae ladrones. Humillación si seguís así.","Liberate del dedo gordo: soltá a quien te ata a lo bajo. Recién ahí llega el aliado en el que podés confiar.","Solo vos podés liberarte: tomá la decisión interna y los demás lo notan. Buena fortuna.","El príncipe derriba al halcón del muro alto: un obstáculo poderoso cae con un tiro preciso y a tiempo. Todo favorece."]},"41":{"img":"El lago al pie de la montaña: la persona sabia controla su enojo y frena sus impulsos.","l":["Terminada tu tarea, ayudá rápido a otros: sin culpa. Pero medí cuánto pedís o das para no vaciar a nadie.","Perseverar favorece; emprender trae desgracia: ayudá sin perder tu dignidad. No te achiques para servir.","Tres que viajan pierden uno; uno solo encuentra compañero: los tríos se rompen. Las alianzas de a dos funcionan.","Reducís tus defectos y la gente se acerca contenta: corregirte atrae ayuda. Sin culpa.","Alguien te enriquece y nada puede impedirlo: el apoyo viene de arriba, merecido. Buena fortuna suprema.","Crecer sin quitarle a nadie: sin culpa. Perseverá; ganás colaboradores y tu trabajo pasa a ser de todos."]},"42":{"img":"El viento y el trueno se refuerzan: la persona sabia imita lo bueno que ve y corrige sus errores.","l":["Es el momento de hacer algo grande: tenés apoyo y viento a favor. Buena fortuna suprema, sin culpa.","Alguien te enriquece y nada puede impedirlo: mantené la constancia y la humildad. Buena fortuna.","Ganás incluso a través de malos momentos: si actuás con sinceridad y transparencia, sin culpa.","Andá por el medio e informá a quien decide: te van a seguir. Sirve para mudanzas y cambios grandes.","Si tenés de verdad buen corazón, no preguntes: la bondad se reconoce sola. Buena fortuna suprema.","No le aportás a nadie y alguien te golpea: si solo buscás tu beneficio, te quedás solo. Desgracia."]},"43":{"img":"El lago subió hasta el cielo: la persona sabia reparte riqueza hacia abajo y no se duerme en sus méritos.","l":["Fuerza en los dedos al avanzar: arrancar sin estar a la altura es un error. Medí antes de ir.","Un grito de alarma, guardia de día y de noche: si estás preparado, no hay nada que temer.","Mostrar los dientes trae desgracia: firme por dentro, sereno por fuera. Aunque te critiquen por andar solo, sin culpa.","Sin piel en los muslos, cuesta caminar: no fuerces. Dejate guiar y se va el arrepentimiento, aunque no quieras escuchar.","Con la maleza hace falta firmeza: cortá lo que está mal sin desviarte del centro. Sin culpa.","Sin grito de alarma: creíste que estaba resuelto y se escapó un detalle. Al final, desgracia. No te relajes."]},"44":{"img":"El viento bajo el cielo: el que manda difunde sus órdenes a todos los rincones.","l":["Frená con freno de bronce: cortá la mala influencia apenas aparece. Si la dejás correr, desgracia.","Hay un pez en la pecera: tenés controlada la influencia. Sin culpa, pero no la compartas ni la expongas.","Sin piel en los muslos, cuesta caminar: estás tentado pero no podés avanzar. Consciente del peligro, no hay gran error.","No hay pez en la pecera: perdiste contacto con tu gente. Si no los cuidás, desgracia.","Un melón cubierto por hojas de sauce: protegé lo débil con discreción. Lo bueno cae del cielo a su tiempo.","Ir al encuentro con los cuernos: rechazar a todos con dureza da vergüenza, pero no es culpa."]},"45":{"img":"El lago sobre la tierra: la persona sabia renueva sus herramientas para estar lista ante lo inesperado.","l":["Sinceridad a medias trae confusión: si pedís ayuda, un apretón de manos alcanza para reír de nuevo. Sin culpa.","Dejarte atraer trae buena fortuna: sumate al grupo. Si sos sincero, alcanza con un gesto chico.","Reunirse entre suspiros: te quedás afuera del grupo. Acercate a alguien de adentro; hay leve vergüenza, sin culpa.","Gran buena fortuna, sin culpa: juntás gente en nombre de algo más grande que vos.","Reunión alrededor de tu posición: si algunos no confían todavía, sé constante y coherente. El arrepentimiento desaparece.","Lamentos y lágrimas: no te aceptan en el grupo. Expresar el dolor está bien; sin culpa."]},"46":{"img":"La madera crece dentro de la tierra: la persona sabia suma cosas chicas con constancia hasta llegar alto.","l":["Subir con confianza: te reciben bien desde abajo. Gran buena fortuna.","Si sos sincero, alcanza con poco: aunque te falte forma, tu intención es clara. Sin culpa.","Subir a una ciudad vacía: avanzás sin resistencia. Aprovechalo, pero no te confíes del todo.","El rey te ofrece la montaña: te reconocen y te dan lugar. Buena fortuna, sin culpa.","Perseverar trae buena fortuna: subí escalón por escalón, sin saltar etapas.","Subir a ciegas: seguís empujando sin ver. Solo sirve si sos constante y lúcido; si no, frená."]},"47":{"img":"El lago sin agua: la persona sabia arriesga la vida para cumplir su voluntad.","l":["Sentado bajo un árbol pelado, perdido en un valle oscuro: te hundís en el desánimo. No te encierres; buscá salida.","Agobiado en medio de la abundancia: el apoyo ya viene. Esperá con calma; salir a forzarlo trae desgracia.","Apoyado en espinas, contra una piedra: te aferrás a lo que no sostiene. Desgracia; soltá eso.","Llega despacio, frenado en un carruaje de oro: la riqueza o la posición te demora. Vergüenza, pero llegás.","Presionado desde arriba y desde abajo: de a poco llega el alivio. Mantené la sinceridad y la paciencia.","Enredado en enredaderas: el obstáculo ya es mental. Si dejás de dudar y te movés, buena fortuna."]},"48":{"img":"El agua sobre la madera: la persona sabia anima a la gente en su trabajo y la impulsa a ayudarse.","l":["Nadie toma el barro de un pozo viejo: si te descuidás, nadie viene a buscarte. Limpiá tu base.","Pescás en el agujero del pozo, el balde roto: tenés talento pero lo desperdiciás en cosas chicas.","El pozo está limpio pero nadie bebe: tu valor no se aprovecha. Si alguien con criterio lo ve, todos ganan.","El pozo se reviste: momento de mantenimiento, no de dar. Ordená tu casa; sin culpa.","Agua clara y fresca en el pozo: tenés algo valioso. Que otros lo tomen; ahí está el sentido.","Se saca agua sin trabas: tu fuente está abierta y es confiable para todos. Buena fortuna suprema."]},"49":{"img":"Fuego dentro del lago: la persona sabia ordena el calendario y deja claros los tiempos de cada cambio.","l":["Atado con cuero de buey amarillo. Todavía no es momento de cambiar nada: contenete y esperá a que madure.","Cuando llega el día justo, se hace la revolución. Avanzar ahora trae buena fortuna y no hay culpa.","Lanzarse trae desgracia y forzar es peligroso. Cuando el cambio se discutió tres veces y cierra, recién ahí confiá.","El arrepentimiento se va. Hay confianza de los demás: cambiar las reglas de fondo ahora trae buena fortuna.","El gran hombre cambia como el tigre: sus rayas se ven claras. Ya tiene la confianza ganada antes de consultar.","El noble cambia como la pantera; los demás solo cambian la cara. No sigas empujando: consolidá lo logrado y quedate firme."]},"50":{"img":"Fuego sobre la madera: la persona sabia corrige su postura y se afirma en lo que tiene que cumplir.","l":["Caldero dado vuelta para vaciar lo podrido. Limpiar lo viejo, aunque sea por un camino poco ortodoxo, no es error.","El caldero está lleno. Los envidiosos no te pueden alcanzar: concentrate en lo tuyo y hay buena fortuna.","Las asas del caldero están cambiadas y nadie prueba lo bueno que cocinás. Esperá: llega la lluvia y al final sale bien.","Se quiebran las patas y se derrama la comida del príncipe. Asumiste más de lo que podés sostener: desgracia.","Asas amarillas y anillas de oro. Sos accesible y valioso a la vez: mantenerte firme así es favorable.","Anillas de jade: fuerza y suavidad en equilibrio. Gran buena fortuna, todo es favorable."]},"51":{"img":"Trueno sobre trueno: la persona sabia, con respeto y temor, se revisa y corrige su conducta.","l":["Llega el sacudón y te asusta; después vienen las risas. El susto inicial te deja mejor parado: buena fortuna.","El sacudón trae peligro y perdés algo valioso. No lo persigas: subí a terreno alto y en siete días vuelve.","El golpe te desconcierta. Si te sirve para moverte y actuar, salís sin daño.","El sacudón se queda empantanado. Te paralizaste en el barro: la energía no te sirve para avanzar.","El sacudón va y viene, hay peligro. No perdés lo esencial si seguís ocupándote de lo que tenés que hacer.","Shock que paraliza, mirada perdida. Avanzar ahora trae desgracia; prevenite antes de que te toque a vos. Habrá habladurías."]},"52":{"img":"Montaña junto a montaña: la persona sabia no deja que sus pensamientos vayan más allá de su situación.","l":["Quietud en los pies, antes de dar el paso. Parar a tiempo no es error: mantenerte firme es favorable.","Quietud en las pantorrillas: frenás pero no podés frenar a quien seguís. Te quedás con el corazón descontento.","Quietud forzada en la cintura, la espalda se pone rígida. Reprimir no es calmar: peligro, el corazón se asfixia.","Quietud en el torso. Calmar tu propio ego todavía no ilumina, pero no hay culpa.","Quietud en la mandíbula: hablá con orden y medida. Cuidá lo que decís y el arrepentimiento desaparece.","Quietud noble y generosa. Llegaste a una calma profunda: gran buena fortuna."]},"53":{"img":"Árbol sobre la montaña: la persona sabia mejora las costumbres sosteniendo con dignidad su buena conducta.","l":["El ganso salvaje se acerca a la orilla. El que recién empieza está expuesto y lo critican, pero no es culpa suya.","El ganso llega a la roca: come y bebe en paz. Posición segura y compartida: buena fortuna.","El ganso llega a la meseta seca: se va y no vuelve. Te alejaste de tu terreno; desgracia. Defendé lo que tenés.","El ganso llega al árbol, donde no está cómodo. Quizás encontrás una rama plana: adaptate con humildad y no hay culpa.","El ganso llega a la cumbre. Hay aislamiento y demora un tiempo largo, pero al final nada te vence: buena fortuna.","El ganso vuela más allá de las nubes y sus plumas sirven de ejemplo. Tu recorrido queda como modelo: buena fortuna."]},"54":{"img":"Trueno sobre el lago: la persona sabia mira el final de las cosas y conoce lo que se arruina con el tiempo.","l":["La muchacha entra como segunda esposa: el rengo que igual camina. Aceptá un rol menor y avanzar trae buena fortuna.","El tuerto que igual ve. Aunque el vínculo te decepcione, mantenete fiel a vos en silencio: es favorable.","Quiere casarse como esposa y termina de sirvienta. Apurarte por ansiedad te hace aceptar un lugar que te rebaja.","La muchacha demora la boda. Esperar lo correcto no es perder: lo bueno llega a su tiempo.","La princesa se viste más sencilla que la concubina. Humildad en una posición alta, como luna casi llena: buena fortuna.","Canasta sin frutos, sacrificio sin sangre. Solo cumplís la forma, sin compromiso real: nada es favorable."]},"55":{"img":"Trueno y relámpago juntos: la persona sabia decide los pleitos y aplica las penas con claridad y firmeza.","l":["Encontrás a tu par, alguien que complementa tu fuerza. Diez días juntos sin culpa: avanzar trae reconocimiento.","Cortina tan espesa que al mediodía se ven las estrellas. Si forzás, generás desconfianza; ganá confianza con sinceridad y hay buena fortuna.","Oscuridad total al mediodía, te rompés el brazo derecho. No podés actuar ahora, pero no es culpa tuya.","La cortina espesa, pero encontrás a tu par. Juntarte con quien complementa tu fuerza trae buena fortuna.","Llegan personas talentosas y vos las sabés escuchar. Bendición y buena fama: buena fortuna.","Casa enorme, puerta vacía: tres años sin ver a nadie. La soberbia te aisló en tu abundancia: desgracia."]},"56":{"img":"Fuego sobre la montaña: la persona sabia aplica las penas con claridad y prudencia, y no estira los procesos.","l":["El viajero se pierde en pequeñeces y mezquindades. Así atrae la desgracia: no seas chico donde sos extranjero.","El viajero llega a la posada con sus recursos y consigue un ayudante fiel. Sé discreto y te va bien.","Se incendia la posada y perdés al ayudante. La arrogancia en tierra ajena es peligrosa aunque tengas razón.","El viajero encuentra refugio y recursos, pero su corazón no está tranquilo. Sigue siendo de paso: no te confíes.","Dispara al faisán y pierde una flecha, pero gana elogio y cargo. Un pequeño costo te abre la puerta: buena fortuna.","El pájaro quema su nido: primero risa, después llanto. Perdiste lo básico por descuido y soberbia: desgracia."]},"57":{"img":"Viento tras viento: la persona sabia difunde sus mandatos y lleva adelante sus asuntos con constancia.","l":["Avanzar y retroceder sin decidirse. La disciplina del guerrero es favorable: definite y mantené la línea.","Buscar debajo de la cama: investigar lo oculto con ayuda. Hacerlo a fondo trae buena fortuna, sin culpa.","Penetración repetida: dar mil vueltas a la misma decisión. Pensar de más te lleva a la humillación.","El arrepentimiento se va. En la cacería se cobran tres clases de presa: tu esfuerzo rinde en varios frentes.","Mantenerte firme trae buena fortuna. Mal comienzo, buen final: pensá tres días antes del cambio y revisá tres días después.","Buscar debajo de la cama hasta perder tus recursos y tu hacha. Te metiste demasiado: insistir trae desgracia."]},"58":{"img":"Lago sobre lago: la persona sabia se junta con amigos a conversar y practicar lo que aprende.","l":["Alegría tranquila que no depende de nada externo. Estás en paz con vos: buena fortuna.","Alegría sincera, sin dobleces. Con confianza genuina se va el arrepentimiento: buena fortuna.","Alegría que viene de afuera, buscada en placeres o halagos. Eso te vacía: desgracia.","Alegría calculada, sin paz: dudás entre dos placeres. Cuando elegís lo correcto y dejás el vicio, viene la alegría real.","Confiar en lo que te desgasta y te desarma. Hay peligro: cuidado con quien te halaga para debilitarte.","Alegría seductora que te arrastra. Te dejás llevar por el placer y perdés el control de tu rumbo."]},"59":{"img":"Viento sobre el agua: los antiguos reyes ofrecían sacrificios y levantaban templos para unir a la gente en algo mayor.","l":["Ayuda con la fuerza de un caballo. Actuá rápido, apenas aparece la división: buena fortuna.","En la dispersión corrés hacia tu apoyo. Volver a lo que te sostiene hace desaparecer el arrepentimiento.","Disolvés tu propio yo, dejás el interés personal. No hay arrepentimiento: el ego no ayuda acá.","Disolvés tu grupo, tu facción. Gran buena fortuna: al soltar lo chico se arma algo más grande que nadie imaginaba.","Una gran proclama, como sudor que limpia la fiebre. Disolver hasta lo propio del rey ordena todo: sin culpa.","Disolvés la sangre: alejarte del peligro, poner distancia. Salir a tiempo, sin culpa."]},"60":{"img":"Agua sobre el lago: la persona sabia fija medidas y números, y examina qué es conducta correcta.","l":["No salir del patio interior. Saber cuándo no moverse, guardar silencio y esperar: sin culpa.","No salir por la puerta del patio cuando ya toca salir. Perder el momento por exceso de cautela trae desgracia.","Quien no conoce límites termina lamentándose. La culpa no es de nadie más: poné vos el freno.","Limitación aceptada con calma. Un límite natural y tranquilo trae éxito.","Limitación dulce: el límite empieza por vos mismo. Buena fortuna, y avanzar así te gana respeto.","Limitación amarga, demasiado estricta. Insistir trae desgracia; aflojá y el arrepentimiento desaparece."]},"61":{"img":"Viento sobre el lago: la persona sabia discute bien los juicios y demora las condenas para entender antes de castigar.","l":["Estar preparado y centrado trae buena fortuna. Si tenés segundas intenciones, aparece la inquietud.","La grulla llama desde la sombra y su cría le responde. Tengo una buena copa y la comparto con vos: la sinceridad conecta.","Encontrás un compañero: ahora tambor, ahora silencio, ahora llanto, ahora canto. Tu ánimo depende del otro: inestable.","La luna casi llena; el caballo de la yunta se pierde. Soltar una alianza para mantenerte fiel a lo correcto: sin culpa.","Una sinceridad que une y sostiene a los demás. Sos el punto firme del grupo: sin culpa.","El canto del gallo sube al cielo: mucho ruido y poca base. Insistir en palabras sin sustancia trae desgracia."]},"62":{"img":"Trueno sobre la montaña: la persona sabia exagera en respeto, en el duelo y en la austeridad.","l":["El pájaro quiere volar alto antes de tiempo. Apuntar demasiado arriba ahora trae desgracia.","Pasás de largo al abuelo y encontrás a la abuela; no llegás al príncipe, sí al funcionario. Ir por el canal posible: sin culpa.","Si no tomás precauciones extraordinarias, alguien te ataca por la espalda. Desgracia por exceso de confianza.","Sin culpa: no te pasás y encontrás el punto. Avanzar es peligroso, estate en guardia y no fuerces nada.","Nubes densas que no llueven. Solo, no alcanza: buscá ayudantes capaces, aunque estén escondidos.","El pájaro se pasa de largo y vuela lejos. Te excediste y no encontrás lo que buscabas: desgracia y daño."]},"63":{"img":"Agua sobre el fuego: la persona sabia piensa en la desgracia y se prepara de antemano para evitarla.","l":["Frenás las ruedas, se te moja la cola. Ir más despacio cuando todo va bien evita el problema: sin culpa.","La mujer pierde la cortina de su carruaje. No salgas a buscarla: en siete días vuelve sola.","El Ilustre Ancestro tarda tres años en vencer a los bárbaros. Lo grande cuesta caro: no uses gente mediocre.","La ropa fina se vuelve trapos. Cuidado todo el día: lo que funciona tiene grietas que no estás viendo.","El vecino del este sacrifica un buey; el del oeste, una ofrenda chica, y recibe la bendición. Vale la sinceridad, no la ostentación.","Se te moja la cabeza: cruzaste y miraste atrás. Peligro por quedarte en lo que ya pasó."]},"64":{"img":"Fuego sobre el agua: la persona sabia distingue con cuidado las cosas para que cada una ocupe su lugar.","l":["Se te moja la cola: te lanzaste sin estar listo. Humillación por apurarte.","Frenás las ruedas a tiempo. Contenerte y perseverar trae buena fortuna.","Antes de terminar, atacar trae desgracia. Pero conviene cruzar el gran río: cambiá de enfoque, no de objetivo.","Perseverar trae buena fortuna y se va el arrepentimiento. La lucha es larga, pero en tres años llega la recompensa.","La luz del noble es sincera. Perseverar trae buena fortuna y no hay nada que lamentar.","Confianza para brindar, sin culpa. Pero si te emborrachás de euforia y se te moja la cabeza, perdés lo que lograste."]}};
+const BY_KEY = {};
+H.forEach(h => { BY_KEY[TRI[h[2]].b + TRI[h[1]].b] = h; });
+const BY_N = {}; H.forEach(h => BY_N[h[0]] = h);
+const POS = [
+  "El comienzo: algo apenas empieza.",
+  "Tu lugar: ejecución, fuerza tranquila.",
+  "El borde: transición riesgosa.",
+  "La puerta: cerca de quien decide.",
+  "El que decide: liderazgo y responsabilidad.",
+  "El final o el exceso: la situación se pasó de rosca."
+];
+const POS_NAME = ["1ª línea","2ª línea","3ª línea","4ª línea","5ª línea","6ª línea"];
+const FU_DAYS = 14;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const isYang = v => v % 2 === 1;
+const isMov = v => v === 6 || v === 9;
+const lineText = (h, i) => (LX[h[0]] && LX[h[0]].l[i]) || POS[i];
+const imgText = h => (LX[h[0]] && LX[h[0]].img) || "";
+
+let lines = [];
+let current = null, currentIsExample = false;
+let sampleFn = null, downloadsCap = null, ctl = null;
+const inClaude = !!window.claude;
+
+function rnd2() { const a = new Uint8Array(3); crypto.getRandomValues(a); return Array.from(a, x => (x & 1) ? 3 : 2); }
+
+function hexHTML(vals, cls = "", id = "") {
+  let out = "";
+  for (let i = 0; i < 6; i++) {
+    const v = vals[i];
+    if (v === undefined) { out += `<div class="ln empty"><i></i></div>`; continue; }
+    const yang = typeof v === "boolean" ? v : isYang(v);
+    const mov = typeof v === "number" && isMov(v);
+    out += `<div class="ln${mov ? " mov" : ""}" data-v="${mov ? v : ""}">${yang ? "<i></i>" : "<i></i><i></i>"}</div>`;
+  }
+  return `<div class="hex ${cls}"${id ? ` id="${id}"` : ""} aria-hidden="true">${out}</div>`;
+}
+
+function renderCoins(c) {
+  $("coins").innerHTML = (c || [3, 2, 3]).map(x =>
+    `<div class="coin ${x === 2 ? "tails" : ""}${c ? " flip" : ""}"><span>${c ? (x === 3 ? "cara" : "ceca") : ""}</span></div>`).join("");
+}
+function renderBuilding() {
+  $("building").outerHTML = hexHTML(lines, "", "building");
+  const n = lines.length;
+  $("progress").textContent = n === 0 ? "Seis tiradas, de abajo hacia arriba."
+    : n < 6 ? `Línea ${n} de 6 · última suma: ${lines[n - 1]}${isMov(lines[n - 1]) ? " (móvil)" : ""}` : "Hexagrama completo.";
+  $("tossBtn").disabled = $("allBtn").disabled = n >= 6;
+}
+function tossOne() {
+  if (lines.length >= 6) return;
+  const c = rnd2();
+  lines.push(c[0] + c[1] + c[2]); renderCoins(c); renderBuilding();
+  if (lines.length === 6) finish();
+}
+function tossAll() { while (lines.length < 6) tossOne(); }
+function reset() { lines = []; renderCoins(null); renderBuilding(); }
+
+function finish() {
+  const q = $("q").value.trim() || "(sin pregunta escrita)";
+  const entry = { id: Date.now(), date: new Date().toISOString(), q, area: $("area").value, lines: lines.slice(), reading: "", fu: null };
+  saveHistory(entry); showResult(entry, false);
+  $("result").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/* ---------- análisis ---------- */
+function analyse(ls) {
+  const b1 = ls.map(v => isYang(v) ? 1 : 0);
+  const b2 = ls.map(v => (isMov(v) ? !isYang(v) : isYang(v)) ? 1 : 0);
+  const mov = ls.map((v, i) => isMov(v) ? i : -1).filter(i => i >= 0);
+  const nb = [b1[1], b1[2], b1[3], b1[2], b1[3], b1[4]];
+  return { b1, b2, nb, mov, h1: BY_KEY[b1.join("")], h2: mov.length ? BY_KEY[b2.join("")] : null, nuc: BY_KEY[nb.join("")] };
+}
+
+// Reglas clásicas (escuela de Zhu Xi) para cuántas líneas mirar y cuál manda
+function rule(a) {
+  const m = a.mov, n = m.length, still = [0,1,2,3,4,5].filter(i => !m.includes(i));
+  if (n === 0) return { n, text: "Sin líneas móviles: la situación es estable. Leé el hexagrama entero: sentido e imagen.", items: [] };
+  if (n === 1) return { n, text: "Una línea móvil: esa línea es la clave de la lectura.", items: [{ h: a.h1, i: m[0], gov: true }] };
+  if (n === 2) return { n, text: "Dos líneas móviles: leé las dos; manda la de arriba.", items: m.map(i => ({ h: a.h1, i, gov: i === m[1] })) };
+  if (n === 3) return { n, text: "Tres líneas móviles: manda la del medio. El hexagrama de partida y el de destino pesan parecido.", items: m.map(i => ({ h: a.h1, i, gov: i === m[1] })) };
+  if (n === 4) return { n, text: "Cuatro líneas móviles: la situación ya está casi en el destino. Mandan las dos líneas quietas, leídas en el hexagrama de destino; pesa más la de abajo.", items: still.map(i => ({ h: a.h2, i, gov: i === still[0] })), fromDest: true };
+  if (n === 5) return { n, text: "Cinco líneas móviles: manda la única línea quieta, leída en el hexagrama de destino.", items: still.map(i => ({ h: a.h2, i, gov: true })), fromDest: true };
+  const special = LX[a.h1[0]] && LX[a.h1[0]].all;
+  return { n, text: special ? "Las seis líneas móviles en " + a.h1[5] + ": tiene un texto propio para este caso." : "Las seis líneas móviles: todo cambia. Leé el hexagrama de destino como el mensaje principal.", items: [], all: special || "" };
+}
+
+/* ---------- resultado ---------- */
+function showResult(entry, example) {
+  current = entry; currentIsExample = example;
+  const a = analyse(entry.lines), { h1, h2, mov, nuc } = a, r = rule(a);
+  const up = TRI[h1[1]], lo = TRI[h1[2]];
+  let html = example ? `<span class="example-flag">Ejemplo · tirá tus monedas para tu propia lectura</span>` : "";
+  html += `<p class="qline"><b>${esc(entry.area)}</b> · ${esc(entry.q)}</p>
+  <div class="result-head">
+    ${hexHTML(entry.lines)}
+    <div class="meta">
+      <div class="num">HEXAGRAMA ${h1[0]}</div>
+      <div class="han">${h1[3]}</div>
+      <h2>${h1[5]}</h2>
+      <div class="pinyin">${h1[4]}</div>
+      <div class="tri">${up.s} <b>${up.n}</b> (${up.a}) arriba · ${lo.s} <b>${lo.n}</b> (${lo.a}) abajo</div>
+    </div>
+  </div>
+  <p class="gist">${h1[6]}</p>
+  ${imgText(h1) ? `<div class="image-q"><h3>La imagen · 象 (xiàng, "imagen")</h3><p>${esc(imgText(h1))}</p></div>` : ""}
+  <div><h3>Preguntas para pensar</h3><ul class="qs"><li>${h1[7]}</li><li>${h1[8]}</li></ul></div>
+  <div><h3>Acción</h3><div class="act">${h1[9]}</div></div>
+  <div class="rule"><h3>Cómo leer esta tirada</h3><p>${r.text}</p></div>`;
+
+  if (mov.length && r.n <= 3) {
+    html += `<div><h3>Líneas móviles · dónde está el cambio</h3><div class="moving">${r.items.map(it => lineHTML(entry, it)).join("")}</div></div>`;
+  } else if (r.n === 4 || r.n === 5) {
+    html += `<div><h3>Líneas que mandan · en el destino</h3><div class="moving">${r.items.map(it => lineHTML(entry, it, true)).join("")}</div></div>
+    <details class="more"><summary>Ver las ${r.n} líneas móviles del hexagrama de partida</summary><div class="moving">${mov.map(i => lineHTML(entry, { h: h1, i, gov: false })).join("")}</div></details>`;
+  } else if (r.n === 6 && r.all) {
+    html += `<div><h3>Las seis líneas en movimiento</h3><div class="act">${esc(r.all)}</div></div>`;
+  }
+
+  if (h2) {
+    html += `<div><h3>Hacia dónde va</h3><div class="to">
+      ${hexHTML(a.b2.map(x => !!x), "sm")}
+      <div class="meta"><div class="num">HEXAGRAMA ${h2[0]} · ${h2[3]} · ${h2[4]}</div><h4>${h2[5]}</h4><p>${h2[6]}</p>${imgText(h2) ? `<p class="img-sm">${esc(imgText(h2))}</p>` : ""}</div>
+    </div></div>`;
+  }
+  html += `<div><h3>Lo que está por debajo · 互卦 (hùguà, "hexagrama entrelazado")</h3><div class="to nuc">
+      ${hexHTML(a.nb.map(x => !!x), "sm")}
+      <div class="meta"><div class="num">HEXAGRAMA ${nuc[0]} · ${nuc[3]} · ${nuc[4]}</div><h4>${nuc[5]}</h4><p>${nuc[6]}</p><p class="img-sm">Se arma con las líneas 2 a 5: muestra la dinámica interna que no se ve a primera vista.</p></div>
+    </div></div>`;
+
+  html += `<div class="claude-box">
+    <h3>Lectura aplicada a tu pregunta</h3>
+    <div class="reading" id="reading">${entry.reading ? md(entry.reading) : ""}</div>
+    <div class="btns">
+      <button id="askBtn" class="seal-btn" ${sampleFn ? "" : "hidden"}>${entry.reading ? "Pedir otra lectura" : "Leer con Claude"}</button>
+      <button id="stopBtn" class="ghost" hidden>Detener</button>
+      <a id="openLink" class="btnlink" href="https://claude.ai/new?q=${encodeURIComponent(buildPrompt(entry))}" target="_blank" rel="noopener" ${sampleFn ? "hidden" : ""}>Abrir en Claude ↗</a>
+      <button id="copyBtn" class="ghost">Copiar consulta</button>
+    </div>
+    <p class="note" id="note">${sampleFn ? "Claude cruza la tirada con tu pregunta: lectura, punto ciego, preguntas y un paso concreto." : "Abrí la consulta en Claude (o copiala) para una lectura aplicada a tu pregunta."}</p>
+  </div>`;
+
+  if (!example) {
+    const fu = entry.fu || {};
+    const age = Math.floor((Date.now() - new Date(entry.date)) / 864e5);
+    html += `<div class="followup">
+      <h3>Seguimiento · ${entry.fu ? "registrado el " + fmtDate(entry.fu.date) : age >= FU_DAYS ? "pendiente" : "volvé en " + (FU_DAYS - age) + " días"}</h3>
+      <label class="lbl" for="fuText">¿Qué decidiste y qué pasó?</label>
+      <textarea id="fuText" placeholder="Ej: Esperé dos semanas, cerré el equipo y lancé el 15. Salió mejor de lo que pensaba.">${esc(fu.text || "")}</textarea>
+      <div class="fu-row">
+        <div><label class="lbl" for="fuUse">¿La lectura te ayudó a pensar?</label>
+          <select id="fuUse">${["", "Sí, me cambió el ángulo", "A medias", "No, solo confirmó lo que pensaba", "Todavía no sé"].map(o => `<option${fu.use === o ? " selected" : ""}>${o}</option>`).join("")}</select></div>
+        <button id="fuSave">Guardar seguimiento</button>
+      </div>
+      <p class="note" id="fuNote"></p>
+    </div>`;
+  }
+
+  html += `<div class="btns export"><button id="pngBtn" class="ghost">Guardar como imagen</button><button id="shareBtn" class="ghost" hidden>Compartir</button></div>`;
+
+  $("result").innerHTML = html;
+  $("askBtn").onclick = ask;
+  $("stopBtn").onclick = () => ctl?.abort();
+  $("copyBtn").onclick = copyPrompt;
+  $("pngBtn").onclick = savePNG;
+  if (!inClaude && navigator.canShare) {
+    try { if (navigator.canShare({ files: [new File([""], "x.png", { type: "image/png" })] })) { $("shareBtn").hidden = false; $("shareBtn").onclick = sharePNG; } } catch {}
+  }
+  if (!example) $("fuSave").onclick = saveFollowup;
+}
+
+function lineHTML(entry, it, fromDest) {
+  const v = fromDest ? "quieta" : entry.lines[it.i];
+  return `<div class="${it.gov ? "gov" : ""}"><b>${POS_NAME[it.i]} · ${v}${it.gov ? '<span class="chip">manda</span>' : ""}</b><span>${esc(lineText(it.h, it.i))}<em>${POS[it.i]}</em></span></div>`;
+}
+
+/* ---------- Claude ---------- */
+function buildPrompt(entry) {
+  const a = analyse(entry.lines), { h1, h2, nuc } = a, r = rule(a);
+  const up = TRI[h1[1]], lo = TRI[h1[2]];
+  let p = `Sos un consejero que usa el I Ching como herramienta de reflexión, no de predicción. Hablás en español rioplatense con voseo, como un par: directo, sin preámbulo, sin misticismo, sin cierre narrativo. Si usás un término chino, ponelo con su traducción al lado entre paréntesis.
+
+Pregunta: "${entry.q}"
+Ámbito: ${entry.area}
+Hexagrama ${h1[0]}: ${h1[5]} (${h1[4]} ${h1[3]}). ${up.n} arriba, ${lo.n} abajo. Sentido: ${h1[6]}
+Imagen: ${imgText(h1)}
+Regla de lectura: ${r.text}
+`;
+  r.items.forEach(it => { p += `${it.gov ? "LÍNEA QUE MANDA" : "Línea"} — ${POS_NAME[it.i]}${r.fromDest ? " del destino" : ""}: ${lineText(it.h, it.i)}\n`; });
+  if (r.all) p += `Texto de las seis líneas móviles: ${r.all}\n`;
+  if (h2) p += `Hexagrama de destino ${h2[0]}: ${h2[5]} (${h2[4]} ${h2[3]}). Sentido: ${h2[6]}\n`;
+  else p += `Sin líneas móviles.\n`;
+  p += `Hexagrama nuclear (lo que está por debajo) ${nuc[0]}: ${nuc[5]}. ${nuc[6]}
+`;
+  if (entry.fu && entry.fu.text) p += `Seguimiento que escribió después: ${entry.fu.text}\n`;
+  p += `
+Respondé en menos de 250 palabras con estos cuatro títulos en negrita, cada uno en su propia línea:
+**Lectura** — qué sugiere la tirada aplicada a esta pregunta concreta, apoyándote en la línea que manda (2-3 frases).
+**Punto ciego** — el sesgo o supuesto que probablemente está pasando por alto (usá el hexagrama nuclear si suma).
+**Preguntas** — 3 preguntas concretas, como lista con guiones.
+**Próximo paso** — una acción concreta para las próximas 48 horas.
+No predigas el futuro ni prometas resultados.`;
+  return p;
+}
+
+function md(t) {
+  const ls = esc(t).split("\n");
+  let out = "", inList = false;
+  for (let l of ls) {
+    l = l.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/^#{1,4}\s*(.+)$/, "<strong>$1</strong>");
+    if (/^\s*[-•*]\s+/.test(l)) { if (!inList) { out += "<ul>"; inList = true; } out += `<li>${l.replace(/^\s*[-•*]\s+/, "")}</li>`; continue; }
+    if (inList) { out += "</ul>"; inList = false; }
+    if (l.trim()) out += `<p>${l}</p>`;
+  }
+  return out + (inList ? "</ul>" : "");
+}
+const ERR = {
+  rate_limited: "Demasiadas consultas seguidas. Probá en un rato.",
+  session_expired: "Tu sesión expiró. Volvé a iniciar sesión en Claude.",
+  refused: "Claude no respondió esta consulta. Reformulá la pregunta.",
+  empty_completion: "Llegó una respuesta vacía. Probá de nuevo.",
+  upstream_error: "Se cortó la conexión. Probá de nuevo."
+};
+async function ask() {
+  if (!sampleFn || !current) return;
+  const r = $("reading"), note = $("note"), askBtn = $("askBtn"), stopBtn = $("stopBtn");
+  ctl = new AbortController();
+  askBtn.disabled = true; stopBtn.hidden = false;
+  r.className = "reading thinking"; r.textContent = "Pensando…"; note.textContent = "";
+  try {
+    const { text, truncated } = await sampleFn(buildPrompt(current), {
+      signal: ctl.signal, cache: false,
+      onText: ({ text }) => { r.className = "reading"; r.innerHTML = md(text); }
+    });
+    current.reading = text;
+    if (!currentIsExample) updateHistory(current);
+    note.textContent = currentIsExample ? "Lectura de ejemplo (no se guarda)." : truncated ? "La respuesta quedó cortada." : "Guardado en tu diario.";
+    askBtn.textContent = "Pedir otra lectura";
+  } catch (e) {
+    r.className = "reading"; r.innerHTML = e.text ? md(e.text) : "";
+    if (["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(e.code)) {
+      sampleFn = null; askBtn.hidden = true; $("openLink").hidden = false;
+      note.textContent = "Claude no está habilitado en esta vista. Abrí la consulta en Claude o copiala.";
+    } else if (e.code !== "cancelled") note.textContent = ERR[e.code] || ERR.upstream_error;
+  } finally { askBtn.disabled = false; stopBtn.hidden = true; }
+}
+async function copyPrompt() {
+  const t = buildPrompt(current), note = $("note");
+  try { await navigator.clipboard.writeText(t); note.textContent = "Consulta copiada. Pegala en un chat con Claude."; }
+  catch {
+    const ta = document.createElement("textarea"); ta.value = t; ta.rows = 8; ta.readOnly = true;
+    note.textContent = "Seleccioná y copiá este texto:"; note.after(ta); ta.focus(); ta.select();
+  }
+}
+
+/* ---------- seguimiento ---------- */
+function saveFollowup() {
+  const text = $("fuText").value.trim(), use = $("fuUse").value;
+  if (!text && !use) { $("fuNote").textContent = "Escribí qué pasó o elegí una opción."; return; }
+  current.fu = { text, use, date: new Date().toISOString() };
+  updateHistory(current);
+  $("fuNote").textContent = "Seguimiento guardado.";
+}
+
+/* ---------- imagen ---------- */
+function plain(t) { return String(t || "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/^#{1,4}\s*/gm, "").replace(/^\s*[-•*]\s+/gm, "· "); }
+async function renderPNG() {
+  try { await document.fonts.ready; } catch {}
+  const W = 1080, P = 72, CW = W - P * 2;
+  const C = { bg: "#EDF1EE", surface: "#F8FAF8", ink: "#14211D", muted: "#5A6B65", line: "#CBD6D1", seal: "#B3352B" };
+  const F = { disp: '"Spectral", Georgia, serif', body: '"Manrope", system-ui, sans-serif', mono: '"IBM Plex Mono", monospace', han: '"Noto Serif TC", serif' };
+  const a = analyse(current.lines), { h1, h2, nuc } = a, r = rule(a), e = current;
+  const meas = document.createElement("canvas").getContext("2d");
+  const wrap = (text, font, w) => {
+    meas.font = font; const out = [];
+    String(text).split("\n").forEach(par => {
+      let line = "";
+      par.split(/\s+/).forEach(word => {
+        const t = line ? line + " " + word : word;
+        if (meas.measureText(t).width > w && line) { out.push(line); line = word; } else line = t;
+      });
+      out.push(line);
+    });
+    return out;
+  };
+  const blocks = [];
+  const label = t => blocks.push({ k: "label", t, h: 44 });
+  const para = (t, font, lh, color, gap = 22, indent = 0) => { const ls = wrap(t, font, CW - indent); blocks.push({ k: "text", ls, font, lh, color, indent, h: ls.length * lh + gap }); };
+  para(e.area.toUpperCase() + " · " + e.q, `500 30px ${F.body}`, 42, C.muted, 30);
+  blocks.push({ k: "head", h: 300 });
+  para(h1[6], `400 36px ${F.disp}`, 50, C.ink, 28);
+  if (imgText(h1)) { label("LA IMAGEN · 象"); para(imgText(h1), `italic 400 30px ${F.disp}`, 42, C.ink, 26); }
+  label("ACCIÓN"); para(h1[9], `700 31px ${F.body}`, 42, C.seal, 26);
+  label("CÓMO LEERLA"); para(r.text, `400 27px ${F.body}`, 38, C.ink, 18);
+  r.items.forEach(it => para(`${POS_NAME[it.i]}${r.fromDest ? " (destino)" : ""}${it.gov ? " · MANDA" : ""} — ${lineText(it.h, it.i)}`, `${it.gov ? 600 : 400} 27px ${F.body}`, 38, it.gov ? C.ink : C.muted, 14, 0));
+  if (r.all) para(r.all, `600 27px ${F.body}`, 38, C.ink, 14);
+  blocks.push({ k: "gap", h: 16 });
+  if (h2) { label("HACIA DÓNDE VA"); para(`${h2[0]} · ${h2[5]} (${h2[3]}) — ${h2[6]}`, `400 28px ${F.body}`, 40, C.ink, 26); }
+  label("LO QUE ESTÁ POR DEBAJO · 互卦"); para(`${nuc[0]} · ${nuc[5]} (${nuc[3]}) — ${nuc[6]}`, `400 28px ${F.body}`, 40, C.ink, 26);
+  if (e.reading) { label("LECTURA"); para(plain(e.reading).slice(0, 1600), `400 27px ${F.body}`, 39, C.ink, 26); }
+  if (e.fu && e.fu.text) { label("SEGUIMIENTO"); para(e.fu.text + (e.fu.use ? " — " + e.fu.use : ""), `400 27px ${F.body}`, 39, C.ink, 26); }
+  const H0 = 170, total = H0 + blocks.reduce((s, b) => s + b.h, 0) + 110;
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = total;
+  const g = cv.getContext("2d");
+  g.fillStyle = C.bg; g.fillRect(0, 0, W, total);
+  // encabezado
+  g.save(); g.translate(P + 36, 86); g.rotate(-0.05); g.fillStyle = C.seal; g.beginPath(); g.roundRect(-36, -36, 72, 72, 8); g.fill();
+  g.fillStyle = "#fff"; g.font = `600 40px ${F.han}`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("易", 0, 2); g.restore();
+  g.textAlign = "left"; g.textBaseline = "alphabetic";
+  g.fillStyle = C.ink; g.font = `600 44px ${F.disp}`; g.fillText("Espejo I Ching", P + 96, 84);
+  g.fillStyle = C.muted; g.font = `400 22px ${F.mono}`; g.fillText(fmtDate(e.date), P + 96, 118);
+  g.fillStyle = C.line; g.fillRect(P, 150, CW, 2);
+  let y = H0;
+  const drawHex = (vals, x, yTop, w, lh, gap) => {
+    for (let i = 0; i < 6; i++) {
+      const v = vals[i], yy = yTop + (5 - i) * (lh + gap), yang = isYang(v), mv = isMov(v);
+      g.fillStyle = mv ? C.seal : C.ink;
+      if (yang) g.fillRect(x, yy, w, lh); else { const s = (w - 24) / 2; g.fillRect(x, yy, s, lh); g.fillRect(x + s + 24, yy, s, lh); }
+    }
+  };
+  for (const b of blocks) {
+    if (b.k === "label") { g.fillStyle = C.muted; g.font = `500 21px ${F.mono}`; g.fillText(b.t, P, y + 22); }
+    else if (b.k === "text") { g.fillStyle = b.color; g.font = b.font; b.ls.forEach((l, i) => g.fillText(l, P + b.indent, y + b.lh * (i + 0.78))); }
+    else if (b.k === "head") {
+      drawHex(e.lines, P, y + 20, 200, 22, 18);
+      const x = P + 250, up = TRI[h1[1]], lo = TRI[h1[2]];
+      g.fillStyle = C.seal; g.font = `500 24px ${F.mono}`; g.fillText("HEXAGRAMA " + h1[0], x, y + 36);
+      g.fillStyle = C.ink; g.font = `600 76px ${F.han}`; g.fillText(h1[3], x, y + 120);
+      g.font = `600 44px ${F.disp}`; wrap(h1[5], g.font, W - P - x).forEach((l, i) => g.fillText(l, x, y + 178 + i * 50));
+      g.fillStyle = C.muted; g.font = `italic 400 28px ${F.disp}`; g.fillText(`${h1[4]} · ${up.n} sobre ${lo.n}`, x, y + 270);
+    }
+    y += b.h;
+  }
+  g.fillStyle = C.line; g.fillRect(P, total - 80, CW, 2);
+  g.fillStyle = C.muted; g.font = `400 20px ${F.body}`; g.fillText("El I Ching como espejo para pensar, no para predecir.", P, total - 40);
+  return await new Promise(res => cv.toBlob(res, "image/png"));
+}
+const fileName = () => `iching-${analyse(current.lines).h1[0]}-${(current.date || "").slice(0, 10)}.png`;
+async function savePNG() {
+  const btn = $("pngBtn"); btn.disabled = true; btn.textContent = "Generando…";
+  try {
+    const blob = await renderPNG();
+    if (downloadsCap) {
+      try { await downloadsCap.save({ filename: fileName(), data: blob }); } catch (e) { if (e && e.code === "unavailable") downloadsCap = null; }
+    } else if (!inClaude) {
+      const url = URL.createObjectURL(blob), aEl = document.createElement("a");
+      aEl.href = url; aEl.download = fileName(); document.body.append(aEl); aEl.click(); aEl.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+    }
+  } finally { btn.disabled = false; btn.textContent = "Guardar como imagen"; }
+}
+async function sharePNG() {
+  const blob = await renderPNG();
+  try { await navigator.share({ files: [new File([blob], fileName(), { type: "image/png" })], title: "Espejo I Ching" }); } catch {}
+}
+
+/* ---------- diario ---------- */
+const HK = "espejo-iching-diario";
+const fmtDate = d => new Date(d).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "2-digit" });
+function loadHistory() { try { return JSON.parse(localStorage.getItem(HK) || "[]"); } catch { return []; } }
+function writeHistory(list) { try { localStorage.setItem(HK, JSON.stringify(list.slice(0, 60))); } catch {} renderHistory(); }
+function saveHistory(e) { const l = loadHistory(); l.unshift(e); writeHistory(l); }
+function updateHistory(e) { writeHistory(loadHistory().map(x => x.id === e.id ? e : x)); }
+const pending = e => !e.fu && (Date.now() - new Date(e.date)) / 864e5 >= FU_DAYS;
+function renderHistory() {
+  const l = loadHistory(), box = $("history");
+  if (!l.length) { box.innerHTML = `<p class="empty">Todavía no hay consultas. Cada tirada queda acá con su hexagrama y la lectura. A los ${FU_DAYS} días te pide que anotes qué decidiste y qué pasó.</p>`; return; }
+  const np = l.filter(pending).length;
+  box.innerHTML = (np ? `<p class="fu-banner">Tenés ${np} ${np === 1 ? "consulta" : "consultas"} con más de ${FU_DAYS} días sin seguimiento. Abrila y anotá qué pasó.</p>` : "") +
+    l.map(e => {
+      const { h1, h2 } = analyse(e.lines);
+      const st = e.fu ? `<span class="st ok">✓</span>` : pending(e) ? `<span class="st due">revisar</span>` : `<span class="st"></span>`;
+      return `<button data-id="${e.id}"><span class="d">${fmtDate(e.date)}</span><span class="q">${esc(e.q)}</span>${st}<span class="h">${h1[0]}${h2 ? " → " + h2[0] : ""}</span></button>`;
+    }).join("");
+  box.querySelectorAll("button").forEach(b => b.onclick = () => {
+    const e = loadHistory().find(x => String(x.id) === b.dataset.id);
+    if (e) { showResult(e, false); $("result").scrollIntoView({ behavior: "smooth", block: "start" }); }
+  });
+}
+
+$("tossBtn").onclick = tossOne;
+$("allBtn").onclick = tossAll;
+$("resetBtn").onclick = reset;
+
+reset();
+renderHistory();
+const EXAMPLE = { id: 0, date: new Date().toISOString(), q: "¿Lanzo el proyecto nuevo este mes o espero a tener el equipo armado?", area: "Negocio", lines: [7, 6, 8, 8, 7, 7], reading: "", fu: null };
+const last = loadHistory()[0];
+showResult(last || EXAMPLE, !last);
+
+(async () => {
+  if (!inClaude) return;
+  try { [sampleFn, downloadsCap] = await Promise.all([window.claude.use("sample"), window.claude.use("downloads")]); } catch { sampleFn = null; }
+  if (current) showResult(current, currentIsExample);
+})();
+</script>
+
+</body>
+</html>
